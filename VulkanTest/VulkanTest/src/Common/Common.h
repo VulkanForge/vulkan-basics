@@ -11,6 +11,9 @@ class VulkanCommon {
 		struct VulkanForge_info {
 			VkInstance inst;
 			std::vector<VkPhysicalDevice> gpus;
+			uint32_t queueCount;
+			std::vector<VkQueueFamilyProperties> queueProps;
+			VkDevice device;
 		};
 
 		static VkResult CreateInstance(VulkanForge_info& info, const VkAllocationCallbacks* pAllocator = NULL) {
@@ -38,7 +41,7 @@ class VulkanCommon {
 			return vkCreateInstance(&inst_info, pAllocator, &info.inst);
 		}
 
-		static void DestroyInstance(VulkanForge_info info, const VkAllocationCallbacks* pAllocator = NULL) {
+		static void DestroyInstance(VulkanForge_info& info, const VkAllocationCallbacks* pAllocator = NULL) {
 			vkDestroyInstance(info.inst, pAllocator);
 		}
 
@@ -49,5 +52,51 @@ class VulkanCommon {
 			info.gpus.resize(gpu_count);
 			res = vkEnumeratePhysicalDevices(info.inst, &gpu_count, info.gpus.data());
 			return res;
+		}
+
+		static bool TryGetGraphicQueue(VulkanForge_info& info, VkDeviceQueueCreateInfo& queueInfo) {
+			vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queueCount,
+				NULL);
+			//assert(info.queue_count >= 1);
+
+			info.queueProps.resize(info.queueCount);
+			vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queueCount,
+				info.queueProps.data());
+			//assert(info.queue_count >= 1);
+
+			bool found = false;
+			for (unsigned int i = 0; i < info.queueCount; i++) {
+				if (info.queueProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+					queueInfo.queueFamilyIndex = i;
+					found = true;
+					break;
+				}
+			}
+			return found;
+		}
+
+		static VkResult CreateDevice(VulkanForge_info& info, VkDeviceQueueCreateInfo& queueInfo) {
+			float queuePriorities[1] = { 0.0 };
+			queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueInfo.pNext = NULL;
+			queueInfo.queueCount = 1;
+			queueInfo.pQueuePriorities = queuePriorities;
+
+			VkDeviceCreateInfo deviceInfo = {};
+			deviceInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+			deviceInfo.pNext = NULL;
+			deviceInfo.queueCreateInfoCount = 1;
+			deviceInfo.pQueueCreateInfos = &queueInfo;
+			deviceInfo.enabledExtensionCount = 0;
+			deviceInfo.ppEnabledExtensionNames = NULL;
+			deviceInfo.enabledLayerCount = 0;
+			deviceInfo.ppEnabledLayerNames = NULL;
+			deviceInfo.pEnabledFeatures = NULL;
+
+			return vkCreateDevice(info.gpus[0], &deviceInfo, NULL, &info.device);
+		}
+
+		static void DestroyDevice(VulkanForge_info& info, const VkAllocationCallbacks* pAllocator = NULL) {
+			vkDestroyDevice(info.device, pAllocator);
 		}
 };

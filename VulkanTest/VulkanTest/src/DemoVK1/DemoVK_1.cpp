@@ -27,6 +27,7 @@ void DemoVK_1::OnRender() {
 }
 
 void DemoVK_1::OnCleanup() {
+	VulkanCommon::DestroyDevice(_vulkanInfo);
 	VulkanCommon::DestroyInstance(_vulkanInfo);
 
 	SDL_GL_DeleteContext(_ctxt);
@@ -36,7 +37,7 @@ void DemoVK_1::OnCleanup() {
 
 bool DemoVK_1::OnInit() {
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-		std::cerr << "cannot initialise SDL environment\n";
+		std::cerr << "cannot initialise SDL environment" << std::endl;
 		return false;
 	}
 
@@ -45,7 +46,7 @@ bool DemoVK_1::OnInit() {
 		WIN_WIDTH, WIN_HEIGHT,
 		SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 	if (!_mainwindow) {
-		std::cerr << "cannot create a SDL window\n";
+		std::cerr << "cannot create a SDL window" << std::endl;
 		return false;
 	}
 
@@ -90,25 +91,48 @@ void DemoVK_1::SetupContext() {
 }
 
 bool DemoVK_1::InitVulkan() {
+
 	// Create Vulkan Instance
 	VkResult vkResult = VulkanCommon::CreateInstance(_vulkanInfo);
 
 	if (vkResult == VK_ERROR_INCOMPATIBLE_DRIVER) {
-		std::cerr << "cannot find a compatible Vulkan ICD\n";
+		std::cerr << "cannot find a compatible Vulkan ICD" << std::endl;
 		return false;
 	}
 	else if (vkResult) {
-		std::cerr << "unknown error\n";
+		std::cerr << "unknown error" << std::endl;
 		return false;
 	}
+	std::cout << "Vulkan Instance Created" << std::endl;
+
 
 	// Enumerate Physical Devices
 	vkResult = VulkanCommon::CheckDevices(_vulkanInfo);
 
 	if (vkResult != VK_SUCCESS || _vulkanInfo.gpus.size() == 0) {
 		std::cerr << "error enumerating physical devices. gpus: " << _vulkanInfo.gpus.size() <<
-			" - VkResult: " << vkResult << "\n";
+			" - VkResult: " << vkResult << std::endl;
 		return false;
 	}
+	std::cout << "Number of devices detected: " << _vulkanInfo.gpus.size() << std::endl;
+
+
+	//Create Vulkan Device
+	VkDeviceQueueCreateInfo queueInfo = {};
+	bool found = VulkanCommon::TryGetGraphicQueue(_vulkanInfo, queueInfo);
+	if (!found) {
+		std::cerr << "error finding graphic Queue" << std::endl;
+		return false;
+	}
+
+	vkResult = VulkanCommon::CreateDevice(_vulkanInfo, queueInfo);
+	if (vkResult != VK_SUCCESS || _vulkanInfo.device == NULL) {
+		std::cerr << "error creating vulkan device - VkResult: " << vkResult << std::endl;
+		return false;
+	}
+
+	std::cout << "Vulkan device created" << std::endl;
+
+
 	return true;
 }
