@@ -4,7 +4,6 @@
 #include <vector>
 #include <SDL.h>
 #include <SDL_syswm.h>
-#include <SDL_events.h>
 #define APP_SHORT_NAME "vulkanForge_samples"
 
 #ifdef _WIN32
