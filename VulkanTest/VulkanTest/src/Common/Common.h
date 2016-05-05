@@ -4,6 +4,7 @@
 #include <vector>
 #include <SDL.h>
 #include <SDL_syswm.h>
+#include <SDL_video.h>
 #define APP_SHORT_NAME "vulkanForge_samples"
 
 #ifdef _WIN32
@@ -168,11 +169,11 @@ class VulkanCommon {
 			VkResult res;
 			#ifdef _WIN32
 			VkWin32SurfaceCreateInfoKHR createInfo = {};
-			createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+			createInfo.sType = VK_USE_PLATFORM_WIN32_KHR;
 			createInfo.pNext = NULL;
 			createInfo.hinstance = info.connection;
 			createInfo.hwnd = info.window;
-			res = vkCreateWin32SurfaceKHR(info.inst, &createInfo, pAllocator, &info.surface);
+			res = vkCreateWin32SurfaceKHR(info.inst, &createInfo, pAllocator, &(info.surface));
 			#else  // !_WIN32
 			VkXcbSurfaceCreateInfoKHR createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;

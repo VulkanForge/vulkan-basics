@@ -1,4 +1,4 @@
-#include "DemoVK_1.h"
+﻿#include "DemoVK_1.h"
 #include <iostream>
 
 DemoVK_1::DemoVK_1() : _running(false), _mainwindow(NULL) {}
@@ -62,8 +62,9 @@ bool DemoVK_1::OnInit() {
 }
 
 int DemoVK_1::OnExecute() {
-	if (!Init())
+	if (!Init()) 
 		return -1;
+		
 
 	SDL_Event event;
 
@@ -156,7 +157,34 @@ bool DemoVK_1::InitVulkan() {
 
 	std::cout << "Command Buffer created" << std::endl;
 
+	/*
+	SDL_SysWMinfo sdlSysInfo;
+	SDL_VERSION(&sdlSysInfo.version);
 
+	if (SDL_GetWindowWMInfo(_mainwindow, &sdlSysInfo) != SDL_TRUE) {
+		std::cerr << "Could not retrieve SDL Window info" << std::endl;
+		return false;
+	}
+
+	_vulkanInfo.connection = GetModuleHandle(NULL);
+	_vulkanInfo.window = sdlSysInfo.info.win.window;
+	
+	​VkWin32SurfaceCreateInfoKHR w32sci = {};
+	w32sci.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+	w32sci.pNext = NULL;
+	w32sci.hinstance = GetModuleHandle(NULL);
+	w32sci.hwnd = info.info.win.window;
+	​
+		VkSurfaceKHR surface;
+	assert(
+		vkCreateWin32SurfaceKHR(
+			instance,
+			&w32sci,
+			nullptr,
+			&surface)
+		== VK_SUCCESS);
+	*/
+	
 	// Attach SDL window
 	SDL_SysWMinfo sdlSysInfo;
 	SDL_VERSION(&sdlSysInfo.version);
@@ -169,6 +197,16 @@ bool DemoVK_1::InitVulkan() {
 	VkWin32SurfaceCreateInfoKHR createInfo;
 	_vulkanInfo.connection = wce.hInstance;
 	_vulkanInfo.window = sdlSysInfo.info.win.window;
+	//*/
+
+	//Create Surface Descriptor
+	vkResult = VulkanCommon::CreateSurfaceDescription(_vulkanInfo);
+	if (vkResult != VK_SUCCESS || _vulkanInfo.surface == NULL) {
+		std::cerr << "Could not create a Surface Descriptor - VkResult: " << vkResult << std::endl;
+		return false;
+	}
+
+	std::cout << "Surface descriptor created" << std::endl;
 
 
 	//Try Get Graphic And Present Queue
