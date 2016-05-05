@@ -27,6 +27,8 @@ void DemoVK_1::OnRender() {
 }
 
 void DemoVK_1::OnCleanup() {
+	VulkanCommon::FreeCommandBuffer(_vulkanInfo);
+	VulkanCommon::DestroyCommandPool(_vulkanInfo);
 	VulkanCommon::DestroyDevice(_vulkanInfo);
 	VulkanCommon::DestroyInstance(_vulkanInfo);
 
@@ -92,6 +94,9 @@ void DemoVK_1::SetupContext() {
 
 bool DemoVK_1::InitVulkan() {
 
+	_vulkanInfo.width = WIN_WIDTH;
+	_vulkanInfo.height = WIN_HEIGHT;
+
 	// Create Vulkan Instance
 	VkResult vkResult = VulkanCommon::CreateInstance(_vulkanInfo);
 
@@ -118,14 +123,13 @@ bool DemoVK_1::InitVulkan() {
 
 
 	//Create Vulkan Device
-	VkDeviceQueueCreateInfo queueInfo = {};
-	bool found = VulkanCommon::TryGetGraphicQueue(_vulkanInfo, queueInfo);
+	bool found = VulkanCommon::TryGetGraphicQueue(_vulkanInfo);
 	if (!found) {
 		std::cerr << "error finding graphic Queue" << std::endl;
 		return false;
 	}
 
-	vkResult = VulkanCommon::CreateDevice(_vulkanInfo, queueInfo);
+	vkResult = VulkanCommon::CreateDevice(_vulkanInfo);
 	if (vkResult != VK_SUCCESS || _vulkanInfo.device == NULL) {
 		std::cerr << "error creating vulkan device - VkResult: " << vkResult << std::endl;
 		return false;
@@ -133,6 +137,55 @@ bool DemoVK_1::InitVulkan() {
 
 	std::cout << "Vulkan device created" << std::endl;
 
+
+	//Create Command Pool
+	vkResult = VulkanCommon::CreateCommandPool(_vulkanInfo);
+	if (vkResult != VK_SUCCESS || _vulkanInfo.commandPool == NULL) {
+		std::cerr << "error creating command Pool - VkResult: " << vkResult << std::endl;
+		return false;
+	}
+
+	std::cout << "Command Pool created" << std::endl;
+
+	//Create Command Buffer
+	vkResult = VulkanCommon::CreateCommandBuffer(_vulkanInfo);
+	if (vkResult != VK_SUCCESS || _vulkanInfo.commandBuffer == NULL) {
+		std::cerr << "error creating command Buffer - VkResult: " << vkResult << std::endl;
+		return false;
+	}
+
+	std::cout << "Command Buffer created" << std::endl;
+
+
+	// Attach SDL window
+	SDL_SysWMinfo sdlSysInfo;
+	SDL_VERSION(&sdlSysInfo.version);
+	SDL_GetWindowWMInfo(_mainwindow, &sdlSysInfo);
+	//TCHAR* className;
+	char className[256];
+	GetClassName(sdlSysInfo.info.win.window, className, 256);
+	WNDCLASS wce;
+	GetClassInfo(GetModuleHandle(NULL), className, &wce);
+	VkWin32SurfaceCreateInfoKHR createInfo;
+	_vulkanInfo.connection = wce.hInstance;
+	_vulkanInfo.window = sdlSysInfo.info.win.window;
+
+
+	//Try Get Graphic And Present Queue
+	if (!VulkanCommon::TryGetGraphicAndPresentQueue(_vulkanInfo)) {	//FIXME CRASH
+		std::cerr << "Could not find a queue that supports both graphics and present" << std::endl;
+		return false;
+	}
+	
+	std::cout << "Found Graphics And Present Queue" << std::endl;
+
+	vkResult = VulkanCommon::InitializeDeviceSurface(_vulkanInfo);
+	if (vkResult != VK_SUCCESS || _vulkanInfo.format == VK_FORMAT_UNDEFINED) {
+		std::cerr << "error initializing device surface - VkResult: " << vkResult << std::endl;
+		return false;
+	}
+
+	std::cout << "Device Surface initialized" << std::endl;
 
 	return true;
 }
