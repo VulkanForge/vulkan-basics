@@ -19,6 +19,8 @@
 #include <vulkan.h>
 
 class VulkanCommon {
+	private:
+
 	public:
 		struct VulkanForge_info {
 			uint32_t width;
@@ -224,7 +226,20 @@ class VulkanCommon {
 			return (graphicsQueueNodeIndex != UINT32_MAX);				
 		}
 
+		static VkResult InitDeviceSurfaceAndSwapChain(VulkanForge_info& info, const VkAllocationCallbacks* pAllocator = NULL) {
+
+			// Estructuras comunes
+
+
+
+			// Device Surface
+			InitializeDeviceSurface(info, commonData, pAllocator);
+			// Swap Chain
+			InitializeSwapChain(info, commonData, pAllocator);
+		}
+
 		static VkResult InitializeDeviceSurface(VulkanForge_info& info, const VkAllocationCallbacks* pAllocator = NULL) {
+			
 			VkResult res;
 			// Get the list of VkFormats that are supported:
 			uint32_t formatCount;
@@ -252,100 +267,105 @@ class VulkanCommon {
 			res = vkGetPhysicalDeviceSurfacePresentModesKHR(info.gpus[0], info.surface,	&info.presentModeCount, NULL);
 			if (res != VK_SUCCESS) return res;
 
+
+
+
+			/*
+
+
+
 			VkPresentModeKHR *presentModes = (VkPresentModeKHR *)malloc(info.presentModeCount * sizeof(VkPresentModeKHR));
 
 			res = vkGetPhysicalDeviceSurfacePresentModesKHR(info.gpus[0], info.surface, &info.presentModeCount, presentModes);
-			return res;
+			if (res != VK_SUCCESS) return res;
+
+			VkExtent2D swapChainExtent;
+			// width and height are either both -1, or both not -1.
+			if (info.surfCapabilities.currentExtent.width == (uint32_t)-1) {
+				// If the surface size is undefined, the size is set to
+				// the size of the images requested.
+				swapChainExtent.width = info.width;
+				swapChainExtent.height = info.height;
+			}
+			else {
+				// If the surface size is defined, the swap chain size must match
+				swapChainExtent = info.surfCapabilities.currentExtent;
+			}
+
+			// If mailbox mode is available, use it, as is the lowest-latency non-
+			// tearing mode.  If not, try IMMEDIATE which will usually be available,
+			// and is fastest (though it tears).  If not, fall back to FIFO which is
+			// always available.
+			VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+			for (size_t i = 0; i < info.presentModeCount; i++) {
+				if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
+					swapchainPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+					break;
+				}
+				if ((swapchainPresentMode != VK_PRESENT_MODE_MAILBOX_KHR) &&
+					(presentModes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR)) {
+					swapchainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+				}
+			}
+
+			// Determine the number of VkImage's to use in the swap chain (we desire to
+			// own only 1 image at a time, besides the images being displayed and
+			// queued for display):
+			uint32_t desiredNumberOfSwapChainImages =
+				info.surfCapabilities.minImageCount + 1;
+			if ((info.surfCapabilities.maxImageCount > 0) &&
+				(desiredNumberOfSwapChainImages > info.surfCapabilities.maxImageCount)) {
+				// Application must settle for fewer images than desired:
+				desiredNumberOfSwapChainImages = info.surfCapabilities.maxImageCount;
+			}
+
+			VkSurfaceTransformFlagBitsKHR preTransform;
+			if (info.surfCapabilities.supportedTransforms &
+				VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
+				preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+			}
+			else {
+				preTransform = info.surfCapabilities.currentTransform;
+			}
+
+			VkSwapchainCreateInfoKHR swap_chain = {};
+			swap_chain.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+			swap_chain.pNext = NULL;
+			swap_chain.surface = info.surface;
+			swap_chain.minImageCount = desiredNumberOfSwapChainImages;
+			swap_chain.imageFormat = info.format;
+			swap_chain.imageExtent.width = swapChainExtent.width;
+			swap_chain.imageExtent.height = swapChainExtent.height;
+			swap_chain.preTransform = preTransform;
+			swap_chain.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+			swap_chain.imageArrayLayers = 1;
+			swap_chain.presentMode = swapchainPresentMode;
+			swap_chain.oldSwapchain = NULL;
+			swap_chain.clipped = true;
+			swap_chain.imageColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
+			swap_chain.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			swap_chain.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			swap_chain.queueFamilyIndexCount = 0;
+			swap_chain.pQueueFamilyIndices = NULL;
+
+			res =
+				vkCreateSwapchainKHR(info.device, &swap_chain, NULL, &info.swap_chain);
+			assert(res == VK_SUCCESS);
+
+			res = vkGetSwapchainImagesKHR(info.device, info.swap_chain,
+				&info.swapchainImageCount, NULL);
+			assert(res == VK_SUCCESS);
+
+			VkImage *swapchainImages =
+				(VkImage *)malloc(info.swapchainImageCount * sizeof(VkImage));
+			assert(swapchainImages);
+			res = vkGetSwapchainImagesKHR(info.device, info.swap_chain,
+				&info.swapchainImageCount, swapchainImages);
+			assert(res == VK_SUCCESS);
+
+			info.buffers.resize(info.swapchainImageCount);
+
+			*/
+
 		}
-
-		//FIXME hacerlo (metodo de 500 lineas vs varios metodos? *presentModes presentModeCount etc...)
-
-//		static VkResult InitializeSwapChain(VulkanForge_info& info, const VkAllocationCallbacks* pAllocator = NULL) {
-//			VkExtent2D swapChainExtent;
-//			// width and height are either both -1, or both not -1.
-//			if (info.surfCapabilities.currentExtent.width == (uint32_t)-1) {
-//				// If the surface size is undefined, the size is set to
-//				// the size of the images requested.
-//				swapChainExtent.width = info.width;
-//				swapChainExtent.height = info.height;
-//			}
-//			else {
-//				// If the surface size is defined, the swap chain size must match
-//				swapChainExtent = info.surfCapabilities.currentExtent;
-//			}
-//
-//			// If mailbox mode is available, use it, as is the lowest-latency non-
-//			// tearing mode.  If not, try IMMEDIATE which will usually be available,
-//			// and is fastest (though it tears).  If not, fall back to FIFO which is
-//			// always available.
-//			VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
-//			for (size_t i = 0; i < info.presentModeCount; i++) {
-//				if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
-//					swapchainPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
-//					break;
-//				}
-//				if ((swapchainPresentMode != VK_PRESENT_MODE_MAILBOX_KHR) &&
-//					(presentModes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR)) {
-//					swapchainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
-//				}
-//			}
-//
-//			// Determine the number of VkImage's to use in the swap chain (we desire to
-//			// own only 1 image at a time, besides the images being displayed and
-//			// queued for display):
-//			uint32_t desiredNumberOfSwapChainImages =
-//				info.surfCapabilities.minImageCount + 1;
-//			if ((info.surfCapabilities.maxImageCount > 0) &&
-//				(desiredNumberOfSwapChainImages > info.surfCapabilities.maxImageCount)) {
-//				// Application must settle for fewer images than desired:
-//				desiredNumberOfSwapChainImages = info.surfCapabilities.maxImageCount;
-//			}
-//
-//			VkSurfaceTransformFlagBitsKHR preTransform;
-//			if (info.surfCapabilities.supportedTransforms &
-//				VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
-//				preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-//			}
-//			else {
-//				preTransform = info.surfCapabilities.currentTransform;
-//			}
-//
-//			VkSwapchainCreateInfoKHR swap_chain = {};
-//			swap_chain.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-//			swap_chain.pNext = NULL;
-//			swap_chain.surface = info.surface;
-//			swap_chain.minImageCount = desiredNumberOfSwapChainImages;
-//			swap_chain.imageFormat = info.format;
-//			swap_chain.imageExtent.width = swapChainExtent.width;
-//			swap_chain.imageExtent.height = swapChainExtent.height;
-//			swap_chain.preTransform = preTransform;
-//			swap_chain.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-//			swap_chain.imageArrayLayers = 1;
-//			swap_chain.presentMode = swapchainPresentMode;
-//			swap_chain.oldSwapchain = NULL;
-//			swap_chain.clipped = true;
-//			swap_chain.imageColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
-//			swap_chain.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-//			swap_chain.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-//			swap_chain.queueFamilyIndexCount = 0;
-//			swap_chain.pQueueFamilyIndices = NULL;
-//
-//			res =
-//				vkCreateSwapchainKHR(info.device, &swap_chain, NULL, &info.swap_chain);
-//			assert(res == VK_SUCCESS);
-//
-//			res = vkGetSwapchainImagesKHR(info.device, info.swap_chain,
-//				&info.swapchainImageCount, NULL);
-//			assert(res == VK_SUCCESS);
-//
-//			VkImage *swapchainImages =
-//				(VkImage *)malloc(info.swapchainImageCount * sizeof(VkImage));
-//			assert(swapchainImages);
-//			res = vkGetSwapchainImagesKHR(info.device, info.swap_chain,
-//				&info.swapchainImageCount, swapchainImages);
-//			assert(res == VK_SUCCESS);
-//
-//			info.buffers.resize(info.swapchainImageCount);
-//
-//		}
 };
