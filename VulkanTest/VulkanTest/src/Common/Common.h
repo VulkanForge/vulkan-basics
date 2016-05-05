@@ -4,7 +4,7 @@
 #include <vector>
 #include <SDL.h>
 #include <SDL_syswm.h>
-#include <SDL_video.h>
+#include <SDL_events.h>
 #define APP_SHORT_NAME "vulkanForge_samples"
 
 #ifdef _WIN32
@@ -26,6 +26,7 @@ class VulkanCommon {
 			uint32_t height;
 
 			VkInstance inst;
+			std::vector<const char *> enabledExtensions;
 			std::vector<VkPhysicalDevice> gpus;
 
 			uint32_t queueCount;
@@ -64,8 +65,20 @@ class VulkanCommon {
 			inst_info.pNext = NULL;
 			inst_info.flags = 0;
 			inst_info.pApplicationInfo = &app_info;
-			inst_info.enabledExtensionCount = 0;
-			inst_info.ppEnabledExtensionNames = NULL;
+
+			info.enabledExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+#ifdef _WIN32
+			info.enabledExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+#else
+			info.enabledExtensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+#endif
+			inst_info.enabledExtensionCount = info.enabledExtensions.size();
+			inst_info.ppEnabledExtensionNames = &info.enabledExtensions[0];
+
+
+
+			//inst_info.enabledExtensionCount = 0;
+			//inst_info.ppEnabledExtensionNames = NULL;
 			inst_info.enabledLayerCount = 0;
 			inst_info.ppEnabledLayerNames = NULL;
 
@@ -169,9 +182,9 @@ class VulkanCommon {
 			VkResult res;
 			#ifdef _WIN32
 			VkWin32SurfaceCreateInfoKHR createInfo = {};
-			createInfo.sType = VK_USE_PLATFORM_WIN32_KHR;
+			createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 			createInfo.pNext = NULL;
-			createInfo.hinstance = info.connection;
+			createInfo.hinstance = GetModuleHandle(NULL);// info.connection;
 			createInfo.hwnd = info.window;
 			res = vkCreateWin32SurfaceKHR(info.inst, &createInfo, pAllocator, &(info.surface));
 			#else  // !_WIN32
@@ -206,8 +219,7 @@ class VulkanCommon {
 			}
 			free(supportsPresent);
 			
-			// Generate error if could not find a queue that supports both a graphics
-			// and present
+			// Generate error if could not find a queue that supports both a graphics and present
 			info.graphicsQueueFamilyIndex = graphicsQueueNodeIndex;
 
 			return (graphicsQueueNodeIndex != UINT32_MAX);				
@@ -217,14 +229,11 @@ class VulkanCommon {
 			VkResult res;
 			// Get the list of VkFormats that are supported:
 			uint32_t formatCount;
-			res = vkGetPhysicalDeviceSurfaceFormatsKHR(info.gpus[0], info.surface,
-				&formatCount, NULL);
-			//assert(res == VK_SUCCESS);
+			res = vkGetPhysicalDeviceSurfaceFormatsKHR(info.gpus[0], info.surface, &formatCount, NULL);
 			if (res != VK_SUCCESS) return res;
 
 			VkSurfaceFormatKHR *surfFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
 			res = vkGetPhysicalDeviceSurfaceFormatsKHR(info.gpus[0], info.surface, &formatCount, surfFormats);
-			//assert(res == VK_SUCCESS);
 			if (res != VK_SUCCESS) return res;
 
 			// If the format list includes just one entry of VK_FORMAT_UNDEFINED,
@@ -239,17 +248,14 @@ class VulkanCommon {
 			}
 
 			res = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(info.gpus[0], info.surface, &info.surfCapabilities);
-			//assert(res == VK_SUCCESS);
 			if (res != VK_SUCCESS) return res;
 
 			res = vkGetPhysicalDeviceSurfacePresentModesKHR(info.gpus[0], info.surface,	&info.presentModeCount, NULL);
-			//assert(res == VK_SUCCESS);
 			if (res != VK_SUCCESS) return res;
 
 			VkPresentModeKHR *presentModes = (VkPresentModeKHR *)malloc(info.presentModeCount * sizeof(VkPresentModeKHR));
 
 			res = vkGetPhysicalDeviceSurfacePresentModesKHR(info.gpus[0], info.surface, &info.presentModeCount, presentModes);
-			//assert(res == VK_SUCCESS);
 			return res;
 		}
 

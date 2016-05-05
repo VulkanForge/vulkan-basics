@@ -157,34 +157,6 @@ bool DemoVK_1::InitVulkan() {
 
 	std::cout << "Command Buffer created" << std::endl;
 
-	/*
-	SDL_SysWMinfo sdlSysInfo;
-	SDL_VERSION(&sdlSysInfo.version);
-
-	if (SDL_GetWindowWMInfo(_mainwindow, &sdlSysInfo) != SDL_TRUE) {
-		std::cerr << "Could not retrieve SDL Window info" << std::endl;
-		return false;
-	}
-
-	_vulkanInfo.connection = GetModuleHandle(NULL);
-	_vulkanInfo.window = sdlSysInfo.info.win.window;
-	
-	​VkWin32SurfaceCreateInfoKHR w32sci = {};
-	w32sci.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-	w32sci.pNext = NULL;
-	w32sci.hinstance = GetModuleHandle(NULL);
-	w32sci.hwnd = info.info.win.window;
-	​
-		VkSurfaceKHR surface;
-	assert(
-		vkCreateWin32SurfaceKHR(
-			instance,
-			&w32sci,
-			nullptr,
-			&surface)
-		== VK_SUCCESS);
-	*/
-	
 	// Attach SDL window
 	SDL_SysWMinfo sdlSysInfo;
 	SDL_VERSION(&sdlSysInfo.version);
@@ -197,7 +169,6 @@ bool DemoVK_1::InitVulkan() {
 	VkWin32SurfaceCreateInfoKHR createInfo;
 	_vulkanInfo.connection = wce.hInstance;
 	_vulkanInfo.window = sdlSysInfo.info.win.window;
-	//*/
 
 	//Create Surface Descriptor
 	vkResult = VulkanCommon::CreateSurfaceDescription(_vulkanInfo);
@@ -210,7 +181,7 @@ bool DemoVK_1::InitVulkan() {
 
 
 	//Try Get Graphic And Present Queue
-	if (!VulkanCommon::TryGetGraphicAndPresentQueue(_vulkanInfo)) {	//FIXME CRASH
+	if (!VulkanCommon::TryGetGraphicAndPresentQueue(_vulkanInfo)) {
 		std::cerr << "Could not find a queue that supports both graphics and present" << std::endl;
 		return false;
 	}
