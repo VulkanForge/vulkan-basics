@@ -138,25 +138,6 @@ bool DemoVK_1::InitVulkan() {
 
 	std::cout << "Vulkan device created" << std::endl;
 
-
-	//Create Command Pool
-	vkResult = VulkanCommon::CreateCommandPool(_vulkanInfo);
-	if (vkResult != VK_SUCCESS || _vulkanInfo.commandPool == NULL) {
-		std::cerr << "error creating command Pool - VkResult: " << vkResult << std::endl;
-		return false;
-	}
-
-	std::cout << "Command Pool created" << std::endl;
-
-	//Create Command Buffer
-	vkResult = VulkanCommon::CreateCommandBuffer(_vulkanInfo);
-	if (vkResult != VK_SUCCESS || _vulkanInfo.commandBuffer == NULL) {
-		std::cerr << "error creating command Buffer - VkResult: " << vkResult << std::endl;
-		return false;
-	}
-
-	std::cout << "Command Buffer created" << std::endl;
-
 	// Attach SDL window
 	SDL_SysWMinfo sdlSysInfo;
 	SDL_VERSION(&sdlSysInfo.version);
@@ -188,13 +169,67 @@ bool DemoVK_1::InitVulkan() {
 	
 	std::cout << "Found Graphics And Present Queue" << std::endl;
 
-	vkResult = VulkanCommon::InitializeDeviceSurface(_vulkanInfo);
+	//Initialize Device Surface and Swap Chain
+	vkResult = VulkanCommon::InitDeviceSurfaceAndSwapChain(_vulkanInfo);
 	if (vkResult != VK_SUCCESS || _vulkanInfo.format == VK_FORMAT_UNDEFINED) {
-		std::cerr << "error initializing device surface - VkResult: " << vkResult << std::endl;
+		std::cerr << "error initializing device surface or swap chain - VkResult: " << vkResult << std::endl;
 		return false;
 	}
 
-	std::cout << "Device Surface initialized" << std::endl;
+	std::cout << "Device Surface and Swap Chain initialized" << std::endl;
+
+
+	//Create Command Pool
+	vkResult = VulkanCommon::CreateCommandPool(_vulkanInfo);
+	if (vkResult != VK_SUCCESS || _vulkanInfo.commandPool == NULL) {
+		std::cerr << "error creating command Pool - VkResult: " << vkResult << std::endl;
+		return false;
+	}
+
+	std::cout << "Command Pool created" << std::endl;
+
+	//Create Command Buffer
+	vkResult = VulkanCommon::CreateCommandBuffer(_vulkanInfo);
+	if (vkResult != VK_SUCCESS || _vulkanInfo.commandBuffer == NULL) {
+		std::cerr << "error creating command Buffer - VkResult: " << vkResult << std::endl;
+		return false;
+	}
+
+	std::cout << "Command Buffer created" << std::endl;
+
+	//Begin Command Buffer
+	vkResult = VulkanCommon::BeginCommandBuffer(_vulkanInfo);
+	if (vkResult != VK_SUCCESS || _vulkanInfo.commandBuffer == NULL) {
+		std::cerr << "error beginning command Buffer - VkResult: " << vkResult << std::endl;
+		return false;
+	}
+	std::cout << "Command Buffer Begin" << std::endl;
+
+	//Populate Swap Chain Images
+	vkResult = VulkanCommon::PopulateSwapChainImages(_vulkanInfo);
+	if (vkResult != VK_SUCCESS || _vulkanInfo.commandBuffer == NULL) {
+		std::cerr << "error populating swap chain images - VkResult: " << vkResult << std::endl;
+		return false;
+	}
+	std::cout << "Populated Swap Chain Images" << std::endl;
+
+	//Populate Swap Chain Images
+	vkResult = VulkanCommon::EndCommandBuffer(_vulkanInfo);
+	if (vkResult != VK_SUCCESS || _vulkanInfo.commandBuffer == NULL) {
+		std::cerr << "error ending command buffer - VkResult: " << vkResult << std::endl;
+		return false;
+	}
+	std::cout << "Ended Command Buffer" << std::endl;
+
+
+	//Populate Swap Chain Images
+	vkResult = VulkanCommon::ExecuteQueueCommandBuffer(_vulkanInfo);
+	if (vkResult != VK_SUCCESS || _vulkanInfo.commandBuffer == NULL) {
+		std::cerr << "error exequting command buffer queue - VkResult: " << vkResult << std::endl;
+		return false;
+	}
+	std::cout << "Executed Command Buffer Queue" << std::endl;
+
 
 	return true;
 }
