@@ -1,6 +1,96 @@
 #include "VulkanCommon.h"
 
 
+VkResult VulkanCommon::InitGlobalExtensionProperties(VulkanForge_layerProperties &layer_props) {
+	VkExtensionProperties *instance_extensions;
+	uint32_t instance_extension_count;
+	VkResult res;
+	char *layer_name = NULL;
+
+	layer_name = layer_props.properties.layerName;
+
+	do {
+		res = vkEnumerateInstanceExtensionProperties(
+			layer_name, &instance_extension_count, NULL);
+		if (res) return res;
+
+		if (instance_extension_count == 0) {
+			return VK_SUCCESS;
+		}
+
+		layer_props.extensions.resize(instance_extension_count);
+		instance_extensions = layer_props.extensions.data();
+		res = vkEnumerateInstanceExtensionProperties(layer_name, &instance_extension_count, instance_extensions);
+	} while (res == VK_INCOMPLETE);
+
+	return res;
+}
+
+
+VkResult VulkanCommon::InitGlobalLayerProperties(VulkanForge_info& info) {
+	uint32_t instance_layer_count;
+	VkLayerProperties *vk_props = NULL;
+	VkResult res;
+
+	/*
+	* It's possible, though very rare, that the number of
+	* instance layers could change. For example, installing something
+	* could include new layers that the loader would pick up
+	* between the initial query for the count and the
+	* request for VkLayerProperties. The loader indicates that
+	* by returning a VK_INCOMPLETE status and will update the
+	* the count parameter.
+	* The count parameter will be updated with the number of
+	* entries loaded into the data pointer - in case the number
+	* of layers went down or is smaller than the size given.
+	*/
+	do {
+		res = vkEnumerateInstanceLayerProperties(&instance_layer_count, NULL);
+		if (res) return res;
+
+		if (instance_layer_count == 0) {
+			return VK_SUCCESS;
+		}
+
+		vk_props = (VkLayerProperties *)realloc(
+			vk_props, instance_layer_count * sizeof(VkLayerProperties));
+
+		res = vkEnumerateInstanceLayerProperties(&instance_layer_count, vk_props);
+	} while (res == VK_INCOMPLETE);
+
+	/*
+	* Now gather the extension list for each instance layer.
+	*/
+	for (uint32_t i = 0; i < instance_layer_count; i++) {
+		VulkanForge_layerProperties layer_props;
+		layer_props.properties = vk_props[i];
+		res = InitGlobalExtensionProperties(layer_props);
+		if (res)
+			return res;
+		info.instanceLayerProperties.push_back(layer_props);
+	}
+	free(vk_props);
+
+	return res;
+}
+
+bool VulkanCommon::checkMemoryTypesFromProperties(VulkanForge_info& info, uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex) {
+	// Search memtypes to find first index with those properties
+	for (uint32_t i = 0; i < 32; i++) {
+		if ((typeBits & 1) == 1) {
+			// Type is available, does it match user properties?
+			if ((info.memoryProperties.memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask) {
+				*typeIndex = i;
+				return true;
+			}
+		}
+		typeBits >>= 1;
+	}
+	// No memory types matched, return failure
+	return false;
+}
+
+
 VkResult VulkanCommon::CreateInstance(VulkanForge_info& info, const VkAllocationCallbacks* pAllocator) {
 	// initialize the VkApplicationInfo structure
 	VkApplicationInfo app_info = {};
@@ -19,14 +109,14 @@ VkResult VulkanCommon::CreateInstance(VulkanForge_info& info, const VkAllocation
 	inst_info.flags = 0;
 	inst_info.pApplicationInfo = &app_info;
 
-	info.enabledExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+	info.instanceExtensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 #ifdef _WIN32
-	info.enabledExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+	info.instanceExtensionNames.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 #else
 	info.enabledExtensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
 #endif
-	inst_info.enabledExtensionCount = info.enabledExtensions.size();
-	inst_info.ppEnabledExtensionNames = &info.enabledExtensions[0];
+	inst_info.enabledExtensionCount = info.instanceExtensionNames.size();
+	inst_info.ppEnabledExtensionNames = &info.instanceExtensionNames[0];
 
 
 
@@ -84,10 +174,11 @@ VkResult VulkanCommon::CreateDevice(VulkanForge_info& info, const VkAllocationCa
 	deviceInfo.pNext = NULL;
 	deviceInfo.queueCreateInfoCount = 1;
 	deviceInfo.pQueueCreateInfos = &info.queueInfo;
-	deviceInfo.enabledExtensionCount = 0;
-	deviceInfo.ppEnabledExtensionNames = NULL;
-	deviceInfo.enabledLayerCount = 0;
-	deviceInfo.ppEnabledLayerNames = NULL;
+	info.deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+	deviceInfo.enabledExtensionCount = info.deviceExtensionNames.size();
+	deviceInfo.ppEnabledExtensionNames = info.deviceExtensionNames.size() ? info.deviceExtensionNames.data() : NULL;
+	deviceInfo.enabledLayerCount = info.deviceLayerNames.size();
+	deviceInfo.ppEnabledLayerNames = info.deviceLayerNames.size() ? info.deviceLayerNames.data() : NULL;
 	deviceInfo.pEnabledFeatures = NULL;
 
 	return vkCreateDevice(info.gpus[0], &deviceInfo, pAllocator, &info.device);
@@ -490,4 +581,99 @@ void VulkanCommon::SetImageLayout(  VulkanForge_info& info,
 
 	vkCmdPipelineBarrier(info.commandBuffer, src_stages, dest_stages, 0, 0, 
 		NULL, 0, NULL, 1, &image_memory_barrier); // FXME: ESTO TAMBIEN HUELE...
+}
+
+
+VulkanCommon::VulkanForge_outcome VulkanCommon::CreateDepthBuffer(VulkanForge_info& info) {
+	VulkanCommon::VulkanForge_outcome outcome = {VkResult::VK_SUCCESS, VulkanCommon::VulkanForge_Result::SUCCESS};
+
+	VkImageCreateInfo image_info = {};
+	const VkFormat depth_format = VK_FORMAT_D16_UNORM;
+	VkFormatProperties props;
+	vkGetPhysicalDeviceFormatProperties(info.gpus[0], depth_format, &props);
+	if (props.linearTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+		image_info.tiling = VK_IMAGE_TILING_LINEAR;
+	}
+	else if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+		image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
+	}
+	else {
+		/* Try other depth formats? */
+		outcome.vfResult = VulkanCommon::VulkanForge_Result::IMAGE_FORMAT_D16_UNORM_UNSUPPORTED;
+		return outcome;
+	}
+
+	image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	image_info.pNext = NULL;
+	image_info.imageType = VK_IMAGE_TYPE_2D;
+	image_info.format = depth_format;
+	image_info.extent.width = info.width;
+	image_info.extent.height = info.height;
+	image_info.extent.depth = 1;
+	image_info.mipLevels = 1;
+	image_info.arrayLayers = 1;
+	image_info.samples = NUM_SAMPLES;
+	image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	image_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+	image_info.queueFamilyIndexCount = 0;
+	image_info.pQueueFamilyIndices = NULL;
+	image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	image_info.flags = 0;
+
+	VkMemoryAllocateInfo mem_alloc = {};
+	mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	mem_alloc.pNext = NULL;
+	mem_alloc.allocationSize = 0;
+	mem_alloc.memoryTypeIndex = 0;
+
+	VkImageViewCreateInfo view_info = {};
+	view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	view_info.pNext = NULL;
+	view_info.image = VK_NULL_HANDLE;
+	view_info.format = depth_format;
+	view_info.components.r = VK_COMPONENT_SWIZZLE_R;
+	view_info.components.g = VK_COMPONENT_SWIZZLE_G;
+	view_info.components.b = VK_COMPONENT_SWIZZLE_B;
+	view_info.components.a = VK_COMPONENT_SWIZZLE_A;
+	view_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+	view_info.subresourceRange.baseMipLevel = 0;
+	view_info.subresourceRange.levelCount = 1;
+	view_info.subresourceRange.baseArrayLayer = 0;
+	view_info.subresourceRange.layerCount = 1;
+	view_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	view_info.flags = 0;
+
+	VkMemoryRequirements mem_reqs;
+
+	info.depth.format = depth_format;
+
+	/* Create image */
+	outcome.vkResult = vkCreateImage(info.device, &image_info, NULL, &info.depth.image);
+	if (outcome.vkResult) return outcome;
+
+	vkGetImageMemoryRequirements(info.device, info.depth.image, &mem_reqs);
+
+	mem_alloc.allocationSize = mem_reqs.size;
+	/* Use the memory properties to determine the type of memory required */
+	if (!checkMemoryTypesFromProperties(info, mem_reqs.memoryTypeBits, 0, /* No Requirements */ &mem_alloc.memoryTypeIndex)) {
+		outcome.vfResult = VulkanCommon::VulkanForge_Result::MEMORY_TYPE_REQUIRED_NOT_AVAILABLE;
+		return outcome;
+	}
+	
+	/* Allocate memory */
+	outcome.vkResult = vkAllocateMemory(info.device, &mem_alloc, NULL, &info.depth.mem);
+	if (outcome.vkResult) return outcome;
+
+	/* Bind memory */
+	outcome.vkResult = vkBindImageMemory(info.device, info.depth.image, info.depth.mem, 0);
+	if (outcome.vkResult) return outcome;
+
+	/* Set the image layout to depth stencil optimal */
+	SetImageLayout(info, info.depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+	
+	/* Create image view */
+	view_info.image = info.depth.image;
+	outcome.vkResult = vkCreateImageView(info.device, &view_info, NULL, &info.depth.view);
+
+	return outcome;
 }

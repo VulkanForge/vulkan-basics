@@ -98,6 +98,8 @@ bool DemoVK_1::InitVulkan() {
 	_vulkanInfo.width = WIN_WIDTH;
 	_vulkanInfo.height = WIN_HEIGHT;
 
+	VulkanCommon::VulkanForge_outcome outcome = { VkResult::VK_SUCCESS, VulkanCommon::VulkanForge_Result::SUCCESS };
+
 	// Create Vulkan Instance
 	VkResult vkResult = VulkanCommon::CreateInstance(_vulkanInfo);
 
@@ -225,11 +227,19 @@ bool DemoVK_1::InitVulkan() {
 	//Populate Swap Chain Images
 	vkResult = VulkanCommon::ExecuteQueueCommandBuffer(_vulkanInfo);
 	if (vkResult != VK_SUCCESS || _vulkanInfo.commandBuffer == NULL) {
-		std::cerr << "error exequting command buffer queue - VkResult: " << vkResult << std::endl;
+		std::cerr << "error executing command buffer queue - VkResult: " << vkResult << std::endl;
 		return false;
 	}
 	std::cout << "Executed Command Buffer Queue" << std::endl;
 
+
+	//Create Depth Buuffer
+	outcome = VulkanCommon::CreateDepthBuffer(_vulkanInfo);
+	if (outcome.vkResult != VK_SUCCESS || outcome.vfResult != VulkanCommon::VulkanForge_Result::SUCCESS) {
+		std::cerr << "error creating depth buffer - VkResult: " << outcome.vkResult << "  VfResult " << outcome.vfResult << std::endl;
+		return false;
+	}
+	std::cout << "Executed Command Buffer Queue" << std::endl;
 
 	return true;
 }
