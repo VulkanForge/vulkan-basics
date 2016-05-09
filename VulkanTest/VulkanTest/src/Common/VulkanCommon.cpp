@@ -1,6 +1,5 @@
 #include "VulkanCommon.h"
 
-
 VkResult VulkanCommon::InitGlobalExtensionProperties(VulkanForge_layerProperties &layer_props) {
 	VkExtensionProperties *instance_extensions;
 	uint32_t instance_extension_count;
@@ -109,6 +108,7 @@ VkResult VulkanCommon::CreateInstance(VulkanForge_info& info, const VkAllocation
 	inst_info.flags = 0;
 	inst_info.pApplicationInfo = &app_info;
 
+
 	info.instanceExtensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 #ifdef _WIN32
 	info.instanceExtensionNames.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
@@ -118,12 +118,10 @@ VkResult VulkanCommon::CreateInstance(VulkanForge_info& info, const VkAllocation
 	inst_info.enabledExtensionCount = info.instanceExtensionNames.size();
 	inst_info.ppEnabledExtensionNames = &info.instanceExtensionNames[0];
 
-
-
 	//inst_info.enabledExtensionCount = 0;
 	//inst_info.ppEnabledExtensionNames = NULL;
-	inst_info.enabledLayerCount = 0;
-	inst_info.ppEnabledLayerNames = NULL;
+	inst_info.enabledLayerCount = info.instanceLayerNames.size();
+	inst_info.ppEnabledLayerNames = info.instanceLayerNames.size() ? info.instanceLayerNames.data() : NULL;
 
 	return vkCreateInstance(&inst_info, pAllocator, &info.inst);
 }
@@ -450,14 +448,14 @@ VkResult VulkanCommon::InitializeSwapChain(VulkanForge_info& info, swapChainCrea
 	swap_chain.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 	swap_chain.imageArrayLayers = 1;
 	swap_chain.presentMode = swapchainPresentMode;
-	swap_chain.oldSwapchain = NULL;
+	swap_chain.oldSwapchain = VK_NULL_HANDLE;
 	swap_chain.clipped = true;
 	swap_chain.imageColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
 	swap_chain.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 	swap_chain.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	swap_chain.queueFamilyIndexCount = 0;
 	swap_chain.pQueueFamilyIndices = NULL;
-
+	
 	res = vkCreateSwapchainKHR(info.device, &swap_chain, NULL, &info.swapchain);
 	if (res != VK_SUCCESS) return res;
 

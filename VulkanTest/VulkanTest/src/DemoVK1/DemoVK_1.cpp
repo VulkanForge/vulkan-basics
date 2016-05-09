@@ -46,7 +46,7 @@ bool DemoVK_1::OnInit() {
 	_mainwindow = SDL_CreateWindow("Vulkan Forge",
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		WIN_WIDTH, WIN_HEIGHT,
-		SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+		SDL_WINDOW_SHOWN/* | SDL_WINDOW_OPENGL*/);
 	if (!_mainwindow) {
 		std::cerr << "cannot create a SDL window" << std::endl;
 		return false;
