@@ -215,7 +215,16 @@ bool DemoVK_1::InitVulkan() {
 	}
 	std::cout << "Populated Swap Chain Images" << std::endl;
 
-	//Populate Swap Chain Images
+
+	//Create Depth Buuffer
+	outcome = VulkanCommon::CreateDepthBuffer(_vulkanInfo);
+	if (outcome.vkResult != VK_SUCCESS || outcome.vfResult != VulkanCommon::VulkanForge_Result::SUCCESS) {
+		std::cerr << "error creating depth buffer - VkResult: " << outcome.vkResult << "  VfResult " << outcome.vfResult << std::endl;
+		return false;
+	}
+	std::cout << "Created Depth Buffer" << std::endl;
+
+	//End Command Buffer
 	vkResult = VulkanCommon::EndCommandBuffer(_vulkanInfo);
 	if (vkResult != VK_SUCCESS || _vulkanInfo.commandBuffer == NULL) {
 		std::cerr << "error ending command buffer - VkResult: " << vkResult << std::endl;
@@ -224,19 +233,10 @@ bool DemoVK_1::InitVulkan() {
 	std::cout << "Ended Command Buffer" << std::endl;
 
 
-	//Populate Swap Chain Images
+	//Execute command buffer queue
 	vkResult = VulkanCommon::ExecuteQueueCommandBuffer(_vulkanInfo);
 	if (vkResult != VK_SUCCESS || _vulkanInfo.commandBuffer == NULL) {
 		std::cerr << "error executing command buffer queue - VkResult: " << vkResult << std::endl;
-		return false;
-	}
-	std::cout << "Executed Command Buffer Queue" << std::endl;
-
-
-	//Create Depth Buuffer
-	outcome = VulkanCommon::CreateDepthBuffer(_vulkanInfo);
-	if (outcome.vkResult != VK_SUCCESS || outcome.vfResult != VulkanCommon::VulkanForge_Result::SUCCESS) {
-		std::cerr << "error creating depth buffer - VkResult: " << outcome.vkResult << "  VfResult " << outcome.vfResult << std::endl;
 		return false;
 	}
 	std::cout << "Executed Command Buffer Queue" << std::endl;
