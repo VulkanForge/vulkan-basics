@@ -159,6 +159,8 @@ public:
 
 	static VulkanForge_outcome CreateDepthBuffer(VulkanForge_info& info);
 
+	static VulkanForge_outcome CreateUniformBuffer(VulkanForge_info& info);
+
 };
 
 #endif

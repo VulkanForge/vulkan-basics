@@ -675,3 +675,10 @@ VulkanCommon::VulkanForge_outcome VulkanCommon::CreateDepthBuffer(VulkanForge_in
 
 	return outcome;
 }
+
+
+VulkanCommon::VulkanForge_outcome VulkanCommon::CreateUniformBuffer(VulkanForge_info& info) {
+	VulkanCommon::VulkanForge_outcome outcome = { VkResult::VK_SUCCESS, VulkanCommon::VulkanForge_Result::SUCCESS };
+
+	return outcome;
+}
