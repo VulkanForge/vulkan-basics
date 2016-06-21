@@ -21,14 +21,17 @@
 
 #include <vulkan.h>
 #include <vector>
+#include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
 
 class VulkanCommon {
 public:
 	
 	enum VulkanForge_Result {
-		SUCCESS,
+		SUCCESS = 0,
 		IMAGE_FORMAT_D16_UNORM_UNSUPPORTED,
-		MEMORY_TYPE_REQUIRED_NOT_AVAILABLE
+		MEMORY_TYPE_REQUIRED_NOT_AVAILABLE,
+		MEMORY_HOST_VISIBLE_BIT_NOT_AVAILABLE
 	};
 
 	struct VulkanForge_outcome {
@@ -52,7 +55,13 @@ public:
 		VkImage image;
 		VkDeviceMemory mem;
 		VkImageView view;
-	} ;
+	};
+
+	struct VulkanForge_uniform {
+		VkBuffer buffer;
+		VkDeviceMemory deviceMemory;
+		VkDescriptorBufferInfo bufferInfo;
+	};
 
 	struct VulkanForge_info {
 		uint32_t width;
@@ -68,6 +77,7 @@ public:
 		std::vector<VkPhysicalDevice> gpus;
 		VkDevice device;
 		VkPhysicalDeviceMemoryProperties memoryProperties;
+		VkPhysicalDeviceProperties gpuProperties;
 
 		uint32_t queueCount;
 		VkDeviceQueueCreateInfo queueInfo;
@@ -88,6 +98,14 @@ public:
 		std::vector<VulkanForge_swapchainBuffer> swapchainBuffers;
 
 		VulkanForge_depth depth;
+
+		VulkanForge_uniform uniform;
+
+		glm::mat4 Projection;
+		glm::mat4 View;
+		glm::mat4 Model;
+		glm::mat4 Clip;
+		glm::mat4 MVP;
 	};
 
 private:

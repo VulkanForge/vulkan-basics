@@ -224,6 +224,14 @@ bool DemoVK_1::InitVulkan() {
 	}
 	std::cout << "Created Depth Buffer" << std::endl;
 
+	//Create Depth Buuffer
+	outcome = VulkanCommon::CreateUniformBuffer(_vulkanInfo);
+	if (outcome.vkResult != VK_SUCCESS || outcome.vfResult != VulkanCommon::VulkanForge_Result::SUCCESS) {
+		std::cerr << "error creating uniform buffer - VkResult: " << outcome.vkResult << "  VfResult " << outcome.vfResult << std::endl;
+		return false;
+	}
+	std::cout << "Created and Populated with MVP the Uniform Buffer" << std::endl;
+
 	//End Command Buffer
 	vkResult = VulkanCommon::EndCommandBuffer(_vulkanInfo);
 	if (vkResult != VK_SUCCESS || _vulkanInfo.commandBuffer == NULL) {

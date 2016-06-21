@@ -157,6 +157,11 @@ bool VulkanCommon::TryGetGraphicQueue(VulkanForge_info& info) {
 			break;
 		}
 	}
+
+	// POLLAS!!!! HDP!!!
+	vkGetPhysicalDeviceMemoryProperties(info.gpus[0], &info.memoryProperties);
+	vkGetPhysicalDeviceProperties(info.gpus[0], &info.gpuProperties);
+
 	return found;
 }
 
@@ -679,6 +684,74 @@ VulkanCommon::VulkanForge_outcome VulkanCommon::CreateDepthBuffer(VulkanForge_in
 
 VulkanCommon::VulkanForge_outcome VulkanCommon::CreateUniformBuffer(VulkanForge_info& info) {
 	VulkanCommon::VulkanForge_outcome outcome = { VkResult::VK_SUCCESS, VulkanCommon::VulkanForge_Result::SUCCESS };
+	
+	info.Projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+	info.View = glm::lookAt(
+		glm::vec3(0, 3, 10), // Camera is at (0,3,10), in World Space
+		glm::vec3(0, 0, 0),  // and looks at the origin
+		glm::vec3(0, -1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+	);
+	info.Model = glm::mat4(1.0f);
+	// Vulkan clip space has inverted Y and half Z.
+	info.Clip = glm::mat4(	1.0f, 0.0f, 0.0f, 0.0f,
+							0.0f, -1.0f, 0.0f, 0.0f,
+							0.0f, 0.0f, 0.5f, 0.0f,
+							0.0f, 0.0f, 0.5f, 1.0f);
+
+	info.MVP = info.Clip * info.Projection * info.View * info.Model;
+
+	VkBufferCreateInfo bufferInfo = {};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.pNext = NULL;
+	bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+	bufferInfo.size = sizeof(info.MVP);
+	bufferInfo.queueFamilyIndexCount = 0;
+	bufferInfo.pQueueFamilyIndices = NULL;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	bufferInfo.flags = 0;
+	outcome.vkResult = vkCreateBuffer(info.device, &bufferInfo, NULL, &info.uniform.buffer);
+	if (outcome.vkResult) return outcome;
+
+
+	VkMemoryRequirements memoryRequirements;
+	vkGetBufferMemoryRequirements(info.device, info.uniform.buffer, &memoryRequirements);
+
+
+	VkMemoryAllocateInfo alloc_info = {};
+	alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	alloc_info.pNext = NULL;
+	alloc_info.memoryTypeIndex = 0;
+
+	alloc_info.allocationSize = memoryRequirements.size;
+	uint32_t typeBits = memoryRequirements.memoryTypeBits;
+
+
+	if (!checkMemoryTypesFromProperties(info, memoryRequirements.memoryTypeBits, 
+										VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+										&alloc_info.memoryTypeIndex)) {
+		outcome.vfResult = VulkanCommon::VulkanForge_Result::MEMORY_HOST_VISIBLE_BIT_NOT_AVAILABLE;
+		return outcome;
+	}
+
+
+	outcome.vkResult = vkAllocateMemory(info.device, &alloc_info, NULL, &(info.uniform.deviceMemory));
+	if (outcome.vkResult) return outcome;
+
+
+	uint8_t *pData;
+	outcome.vkResult = vkMapMemory(info.device, info.uniform.deviceMemory, 0, memoryRequirements.size, 0, (void **)&pData);
+	if (outcome.vkResult) return outcome;
+
+	memcpy(pData, &info.MVP, sizeof(info.MVP));
+
+	vkUnmapMemory(info.device, info.uniform.deviceMemory);
+
+	outcome.vkResult = vkBindBufferMemory(info.device, info.uniform.buffer, info.uniform.deviceMemory, 0);
+	if (outcome.vkResult) return outcome;
+
+	info.uniform.bufferInfo.buffer = info.uniform.buffer;
+	info.uniform.bufferInfo.offset = 0;
+	info.uniform.bufferInfo.range = sizeof(info.MVP);
 
 	return outcome;
 }
