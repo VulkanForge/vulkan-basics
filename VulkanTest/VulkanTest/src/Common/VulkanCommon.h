@@ -25,6 +25,8 @@
 #include <vector>
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
+#include <SPIRV/GlslangToSpv.h>
+
 
 class VulkanCommon {
 public:
@@ -33,7 +35,8 @@ public:
 		SUCCESS = 0,
 		IMAGE_FORMAT_D16_UNORM_UNSUPPORTED,
 		MEMORY_TYPE_REQUIRED_NOT_AVAILABLE,
-		MEMORY_HOST_VISIBLE_BIT_NOT_AVAILABLE
+		MEMORY_HOST_VISIBLE_BIT_NOT_AVAILABLE,
+		GLSLANG_TO_SPIRV_FAILED
 	};
 
 	struct VulkanForge_outcome {
@@ -107,6 +110,8 @@ public:
 
 		VkRenderPass renderPass;
 
+		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
+
 		glm::mat4 Projection;
 		glm::mat4 View;
 		glm::mat4 Model;
@@ -121,6 +126,15 @@ private:
 		uint32_t presentModeCount;
 		VkPresentModeKHR *presentModes;
 	};
+
+	//Utils
+	static void InitResources(TBuiltInResource &Resources);
+
+	static EShLanguage FindLanguage(const VkShaderStageFlagBits shader_type);
+
+	static bool GLSLtoSPV(const VkShaderStageFlagBits shader_type, const char *pshader, std::vector<unsigned int> &spirv);
+
+	//
 
 	static VkResult InitGlobalExtensionProperties(VulkanForge_layerProperties &layer_props);
 
@@ -188,6 +202,8 @@ public:
 	static VulkanForge_outcome CreatePipelineLayout(VulkanForge_info& info);
 
 	static VulkanForge_outcome InitRenderPass(VulkanForge_info& info);
+
+	static VulkanForge_outcome InitShaders(VulkanForge_info& info);
 };
 
 #endif

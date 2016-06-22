@@ -149,7 +149,7 @@ bool DemoVK_1::InitVulkan() {
 	GetClassName(sdlSysInfo.info.win.window, className, 256);
 	WNDCLASS wce;
 	GetClassInfo(GetModuleHandle(NULL), className, &wce);
-	VkWin32SurfaceCreateInfoKHR createInfo;
+	//VkWin32SurfaceCreateInfoKHR createInfo;
 	_vulkanInfo.connection = wce.hInstance;
 	_vulkanInfo.window = sdlSysInfo.info.win.window;
 
@@ -247,6 +247,14 @@ bool DemoVK_1::InitVulkan() {
 		return false;
 	}
 	std::cout << "Render pass initialized" << std::endl;
+
+	//Init Shader
+	outcome = VulkanCommon::InitShaders(_vulkanInfo);
+	if (outcome.vkResult != VK_SUCCESS || outcome.vfResult != VulkanCommon::VulkanForge_Result::SUCCESS) {
+		std::cerr << "error initializing shaders - VkResult: " << outcome.vkResult << "  VfResult " << outcome.vfResult << std::endl;
+		return false;
+	}
+	std::cout << "Shaders initialized" << std::endl;
 
 	//End Command Buffer
 	vkResult = VulkanCommon::EndCommandBuffer(_vulkanInfo);

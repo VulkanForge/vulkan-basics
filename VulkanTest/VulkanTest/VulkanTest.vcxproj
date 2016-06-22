@@ -45,7 +45,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\VulkanTest\lib\SDL2\include;$(SolutionDir)\VulkanTest\lib\glm;$(SolutionDir)\VulkanTest\lib\vulkan\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\VulkanTest\lib\SDL2\include;$(SolutionDir)\VulkanTest\lib\glm;$(SolutionDir)\VulkanTest\lib\vulkan\include;$(SolutionDir)\VulkanTest\lib\glslang;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
