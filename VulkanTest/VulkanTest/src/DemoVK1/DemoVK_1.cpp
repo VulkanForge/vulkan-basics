@@ -232,6 +232,14 @@ bool DemoVK_1::InitVulkan() {
 	}
 	std::cout << "Created and Populated with MVP the Uniform Buffer" << std::endl;
 
+	//Create Pipeline Layout
+	outcome = VulkanCommon::CreatePipelineLayout(_vulkanInfo);
+	if (outcome.vkResult != VK_SUCCESS || outcome.vfResult != VulkanCommon::VulkanForge_Result::SUCCESS) {
+		std::cerr << "error creating pipeline layout - VkResult: " << outcome.vkResult << "  VfResult " << outcome.vfResult << std::endl;
+		return false;
+	}
+	std::cout << "Created Pipeline Layout" << std::endl;
+
 	//End Command Buffer
 	vkResult = VulkanCommon::EndCommandBuffer(_vulkanInfo);
 	if (vkResult != VK_SUCCESS || _vulkanInfo.commandBuffer == NULL) {

@@ -13,6 +13,8 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #define NOMINMAX /* Don't let Windows define min() or max() */
 #define APP_NAME_STR_LEN 80
+#define NUM_DESCRIPTOR_SETS 1
+
 #else // _WIN32
 #include <unistd.h>
 #endif // _WIN32
@@ -100,6 +102,8 @@ public:
 		VulkanForge_depth depth;
 
 		VulkanForge_uniform uniform;
+		std::vector<VkDescriptorSetLayout> descriptorLayout;
+		VkPipelineLayout pipelineLayout;
 
 		glm::mat4 Projection;
 		glm::mat4 View;
@@ -179,6 +183,7 @@ public:
 
 	static VulkanForge_outcome CreateUniformBuffer(VulkanForge_info& info);
 
+	static VulkanForge_outcome CreatePipelineLayout(VulkanForge_info& info);
 };
 
 #endif

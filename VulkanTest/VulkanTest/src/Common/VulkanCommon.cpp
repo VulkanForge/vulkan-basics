@@ -755,3 +755,72 @@ VulkanCommon::VulkanForge_outcome VulkanCommon::CreateUniformBuffer(VulkanForge_
 
 	return outcome;
 }
+
+
+VulkanCommon::VulkanForge_outcome VulkanCommon::CreatePipelineLayout(VulkanForge_info& info) {
+
+	VulkanForge_outcome outcome = { VkResult::VK_SUCCESS, VulkanCommon::VulkanForge_Result::SUCCESS };
+
+	VkDescriptorSetLayoutBinding layout_binding = {};
+	layout_binding.binding = 0;
+	layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	layout_binding.descriptorCount = 1;
+	layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	layout_binding.pImmutableSamplers = NULL;
+
+	/* Next take layout bindings and use them to create a descriptor set layout
+	*/
+	VkDescriptorSetLayoutCreateInfo descriptor_layout = {};
+	descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	descriptor_layout.pNext = NULL;
+	descriptor_layout.bindingCount = 1;
+	descriptor_layout.pBindings = &layout_binding;
+
+	info.descriptorLayout.resize(NUM_DESCRIPTOR_SETS);
+	outcome.vkResult = vkCreateDescriptorSetLayout(info.device, &descriptor_layout, NULL, info.descriptorLayout.data());
+	
+	//assert(res == VK_SUCCESS);
+	if (outcome.vkResult) return outcome;
+
+
+	/* Now use the descriptor layout to create a pipeline layout */
+	VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
+	pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pPipelineLayoutCreateInfo.pNext = NULL;
+	pPipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+	pPipelineLayoutCreateInfo.pPushConstantRanges = NULL;
+	pPipelineLayoutCreateInfo.setLayoutCount = NUM_DESCRIPTOR_SETS;
+	pPipelineLayoutCreateInfo.pSetLayouts = info.descriptorLayout.data();
+
+	outcome.vkResult = vkCreatePipelineLayout(info.device, &pPipelineLayoutCreateInfo, NULL, &info.pipelineLayout);
+	//assert(res == VK_SUCCESS);
+	
+	if (outcome.vkResult) return outcome;	
+	
+	/***
+	*** If Texture ***
+
+	 if (use_texture) {
+        layout_bindings[1].binding = 1;
+        layout_bindings[1].descriptorType =
+            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        layout_bindings[1].descriptorCount = 1;
+        layout_bindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        layout_bindings[1].pImmutableSamplers = NULL;
+    }
+	
+	    descriptor_layout.bindingCount = use_texture ? 2 : 1;
+	***
+	***
+	*/
+	
+	/* VULKAN_KEY_END */
+	/*
+	for (int i = 0; i < NUM_DESCRIPTOR_SETS; i++)
+		vkDestroyDescriptorSetLayout(info.device, info.desc_layout[i], NULL);
+	vkDestroyPipelineLayout(info.device, info.pipeline_layout, NULL);
+	*/
+	
+	//destroy_device(info);
+	//destroy_instance(info);
+}
