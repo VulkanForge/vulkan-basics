@@ -240,6 +240,14 @@ bool DemoVK_1::InitVulkan() {
 	}
 	std::cout << "Created Pipeline Layout" << std::endl;
 
+	//Init Render Pass
+	outcome = VulkanCommon::InitRenderPass(_vulkanInfo);
+	if (outcome.vkResult != VK_SUCCESS || outcome.vfResult != VulkanCommon::VulkanForge_Result::SUCCESS) {
+		std::cerr << "error initializing render pass - VkResult: " << outcome.vkResult << "  VfResult " << outcome.vfResult << std::endl;
+		return false;
+	}
+	std::cout << "Render pass initialized" << std::endl;
+
 	//End Command Buffer
 	vkResult = VulkanCommon::EndCommandBuffer(_vulkanInfo);
 	if (vkResult != VK_SUCCESS || _vulkanInfo.commandBuffer == NULL) {

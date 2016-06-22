@@ -779,7 +779,6 @@ VulkanCommon::VulkanForge_outcome VulkanCommon::CreatePipelineLayout(VulkanForge
 	info.descriptorLayout.resize(NUM_DESCRIPTOR_SETS);
 	outcome.vkResult = vkCreateDescriptorSetLayout(info.device, &descriptor_layout, NULL, info.descriptorLayout.data());
 	
-	//assert(res == VK_SUCCESS);
 	if (outcome.vkResult) return outcome;
 
 
@@ -793,9 +792,8 @@ VulkanCommon::VulkanForge_outcome VulkanCommon::CreatePipelineLayout(VulkanForge
 	pPipelineLayoutCreateInfo.pSetLayouts = info.descriptorLayout.data();
 
 	outcome.vkResult = vkCreatePipelineLayout(info.device, &pPipelineLayoutCreateInfo, NULL, &info.pipelineLayout);
-	//assert(res == VK_SUCCESS);
 	
-	if (outcome.vkResult) return outcome;	
+	return outcome;	
 	
 	/***
 	*** If Texture ***
@@ -823,4 +821,68 @@ VulkanCommon::VulkanForge_outcome VulkanCommon::CreatePipelineLayout(VulkanForge
 	
 	//destroy_device(info);
 	//destroy_instance(info);
+}
+
+VulkanCommon::VulkanForge_outcome VulkanCommon::InitRenderPass(VulkanForge_info& info) {
+
+	VulkanForge_outcome outcome = { VkResult::VK_SUCCESS, VulkanCommon::VulkanForge_Result::SUCCESS };
+
+	VkAttachmentDescription attachments[2];
+	attachments[0].format = info.format;
+	attachments[0].samples = NUM_SAMPLES;
+	attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	attachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	attachments[0].flags = 0;
+
+	attachments[1].format = info.depth.format;
+	attachments[1].samples = NUM_SAMPLES;
+	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachments[1].flags = 0;
+
+	VkAttachmentReference color_reference = {};
+	color_reference.attachment = 0;
+	color_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference depth_reference = {};
+	depth_reference.attachment = 1;
+	depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkSubpassDescription subpass = {};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.flags = 0;
+	subpass.inputAttachmentCount = 0;
+	subpass.pInputAttachments = NULL;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &color_reference;
+	subpass.pResolveAttachments = NULL;
+	subpass.pDepthStencilAttachment = &depth_reference;
+	subpass.preserveAttachmentCount = 0;
+	subpass.pPreserveAttachments = NULL;
+
+	VkRenderPassCreateInfo rp_info = {};
+	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	rp_info.pNext = NULL;
+	rp_info.attachmentCount = 2;
+	rp_info.pAttachments = attachments;
+	rp_info.subpassCount = 1;
+	rp_info.pSubpasses = &subpass;
+	rp_info.dependencyCount = 0;
+	rp_info.pDependencies = NULL;
+
+	outcome.vkResult = vkCreateRenderPass(info.device, &rp_info, NULL, &info.renderPass);
+	
+	return outcome;
+	
+	/* VULKAN_KEY_END */
+
+	//vkDestroyRenderPass(info.device, info.render_pass, NULL);
 }

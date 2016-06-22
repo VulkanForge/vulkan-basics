@@ -105,6 +105,8 @@ public:
 		std::vector<VkDescriptorSetLayout> descriptorLayout;
 		VkPipelineLayout pipelineLayout;
 
+		VkRenderPass renderPass;
+
 		glm::mat4 Projection;
 		glm::mat4 View;
 		glm::mat4 Model;
@@ -184,6 +186,8 @@ public:
 	static VulkanForge_outcome CreateUniformBuffer(VulkanForge_info& info);
 
 	static VulkanForge_outcome CreatePipelineLayout(VulkanForge_info& info);
+
+	static VulkanForge_outcome InitRenderPass(VulkanForge_info& info);
 };
 
 #endif
