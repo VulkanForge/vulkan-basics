@@ -1,0 +1,157 @@
+digraph g {
+  // STYLING
+  rankdir=RL;
+  graph [ fontname = "sans-serif",
+          fontsize = 24,
+          label = "\n\nVulkan\nStructure creation\ndependency graph",
+          ];
+  
+  node [  shape = rectangle,
+          style = filled,
+          color = "#302840",
+          fillcolor = "#E0DDFF",
+          fontname = "helvetica",
+          fontsize = 12 ];
+  
+  // Graph Contrete Styling
+  "VfSwapchainBuffer{} (InitializeDeviceSurface)" [fillcolor = "#AABBFF"];
+  "VfDepthBuffer{} (CreateDepthBuffer)" [fillcolor = "#AABBFF"];
+  "VfUniformBuffer{} (CreateUniformBuffer)" [fillcolor = "#AABBFF"];
+  
+  "(BeginCommandBuffer)" [fillcolor = "#DDFFDD"];
+  "(ExecuteQueueCommandBuffer)" [fillcolor = "#DDFFDD"];
+  
+  "MVP" [fillcolor = "#FFDDDD"];
+  "HWND window (SDL)" [fillcolor = "#FFDDDD"];
+  
+  // Graph start
+  "VkPhysicalDevice[] (CheckDevices)" -> "VkInstance (CreateInstance)";
+  "VkQueueFamilyProperties[] (TryGetGraphicQueue)" -> "VkPhysicalDevice[] (CheckDevices)";
+  "VkPhysicalDeviceMemoryProperties (TryGetGraphicQueue)" -> "VkPhysicalDevice[] (CheckDevices)";
+  "VkPhysicalDeviceProperties (TryGetGraphicQueue)" -> "VkPhysicalDevice[] (CheckDevices)";
+  
+  "VkDeviceQueueCreateInfo (TryGetGraphicQueue)" -> "VkPhysicalDevice[] (CheckDevices)";
+  "VkDevice (CreateDevice)" -> "VkDeviceQueueCreateInfo (TryGetGraphicQueue)";
+  "VkDevice (CreateDevice)" -> "VkPhysicalDevice[] (CheckDevices)";
+  
+  // SWAP CHAIN
+  subgraph cluster_0 {
+    node [style=filled];
+    color="#222222";
+    style=filled;
+    fillcolor = "#EEEEEE";
+    fontsize = 15;
+    label = "Swap Chain";
+  
+    "VkSurfaceKHR (CreateSurfaceDescription)" -> "HWND window (SDL)";
+    "VkFormat (InitializeDeviceSurface)" -> "VkSurfaceKHR (CreateSurfaceDescription)";
+    "VkSwapchainKHR (InitializeDeviceSurface)" -> "VkFormat (InitializeDeviceSurface)";
+    "VkSwapchainKHR (InitializeDeviceSurface)" -> "VkSurfaceKHR (CreateSurfaceDescription)";
+    "VkImage (InitializeDeviceSurface)" -> "VkSwapchainKHR (InitializeDeviceSurface)";
+    "VkImageView (InitializeDeviceSurface)" -> "VkImage (InitializeDeviceSurface)";
+    "VfSwapchainBuffer{} (InitializeDeviceSurface)" -> "VkImage (InitializeDeviceSurface)";
+    "VfSwapchainBuffer{} (InitializeDeviceSurface)" -> "VkImageView (InitializeDeviceSurface)";
+  }
+  
+  "VkSurfaceKHR (CreateSurfaceDescription)" -> "VkInstance (CreateInstance)";
+  "VkFormat (InitializeDeviceSurface)" -> "VkPhysicalDevice[] (CheckDevices)";
+  "VkImage (InitializeDeviceSurface)" -> "VkDevice (CreateDevice)";
+  "VkImageView (InitializeDeviceSurface)" -> "VkDevice (CreateDevice)";
+  "VkSwapchainKHR (InitializeDeviceSurface)" -> "VkDevice (CreateDevice)";
+  
+  // COMMAND BUFFER
+  subgraph cluster_1 {
+    node [style=filled];
+    color="#228822";
+    style=filled;
+    fillcolor = "#EEFFEE";
+    fontsize = 15;
+    label = "Command Buffer";
+    "VkCommandBuffer (CreateCommandBuffer)" -> "VkCommandPool (CreateCommandPool)";
+    "(BeginCommandBuffer)" -> "VkCommandBuffer (CreateCommandBuffer)";
+  }
+  
+  "VkCommandPool (CreateCommandPool)" -> "VkDevice (CreateDevice)";
+  "VkCommandBuffer (CreateCommandBuffer)" -> "VkDevice (CreateDevice)";
+  
+  
+  
+  // DEPTH BUFFER
+  subgraph cluster_2 {
+    node [style=filled];
+    color="#228822";
+    style=filled;
+    fillcolor = "#EEFFEE";
+    fontsize = 15;
+    label = "Depth Buffer";
+    "VkDeviceMemory (CreateDepthBuffer)" -> "VkImage (CreateDepthBuffer)";
+    "VkImageView (CreateDepthBuffer)" -> "VkImage (CreateDepthBuffer)";
+  
+    "VfDepthBuffer{} (CreateDepthBuffer)" -> "VkImage (CreateDepthBuffer)";
+    "VfDepthBuffer{} (CreateDepthBuffer)" -> "VkImageView (CreateDepthBuffer)";
+    "VfDepthBuffer{} (CreateDepthBuffer)" -> "VkDeviceMemory (CreateDepthBuffer)";
+    "VfDepthBuffer{} (CreateDepthBuffer)" -> "VkFormat (CreateDepthBuffer)";
+  }
+  
+  "VkImage (CreateDepthBuffer)" -> "VkDevice (CreateDevice)";
+  "VkImage (CreateDepthBuffer)" -> "VkPhysicalDevice[] (CheckDevices)";
+  "VkDeviceMemory (CreateDepthBuffer)" -> "VkPhysicalDeviceMemoryProperties (TryGetGraphicQueue)";
+
+  "VkDeviceMemory (CreateDepthBuffer)" -> "VkDevice (CreateDevice)";
+  "VkImageView (CreateDepthBuffer)" -> "VkDevice (CreateDevice)";
+  
+  
+   // UNIFORM BUFFER
+  subgraph cluster_3 {
+    node [style=filled];
+    color="#228822";
+    style=filled;
+    fillcolor = "#EEFFEE";
+    fontsize = 15;
+    label = "Uniform Buffer";
+    
+    "VkBuffer (CreateUniformBuffer)" -> "MVP";
+    
+    "VkDeviceMemory (CreateUniformBuffer)" -> "VkBuffer (CreateUniformBuffer)";
+    
+    "VkDescriptorBufferInfo (CreateUniformBuffer)" -> "VkBuffer (CreateUniformBuffer)";
+    "VkDescriptorBufferInfo (CreateUniformBuffer)" -> "MVP";
+  
+    "VfUniformBuffer{} (CreateUniformBuffer)" -> "VkBuffer (CreateUniformBuffer)";
+    "VfUniformBuffer{} (CreateUniformBuffer)" -> "VkDescriptorBufferInfo (CreateUniformBuffer)";
+    "VfUniformBuffer{} (CreateUniformBuffer)" -> "VkDeviceMemory (CreateUniformBuffer)";
+  }
+  
+  "VkBuffer (CreateUniformBuffer)" -> "VkDevice (CreateDevice)";
+  "VkDeviceMemory (CreateUniformBuffer)" -> "VkDevice (CreateDevice)";
+  "VkDeviceMemory (CreateUniformBuffer)" -> "VkPhysicalDeviceMemoryProperties (TryGetGraphicQueue)";
+  
+  
+   // UNIFORM BUFFER
+  subgraph cluster_4 {
+    node [style=filled];
+    color="#000000";
+    fontsize = 15;
+    label = "Pipeline & RenderPass";
+    
+    "VkPipelineLayout (CreatePipelineLayout)" -> "VkDescriptorSetLayout[] (CreatePipelineLayout)";
+    "VkRenderPass (InitRenderPass)";
+    "VkPipelineShaderStageCreateInfo[] (InitShaders)";
+  }
+  "VkDescriptorSetLayout[] (CreatePipelineLayout)" -> "VkDevice (CreateDevice)";
+  "VkPipelineLayout (CreatePipelineLayout)" -> "VkDevice (CreateDevice)";
+  "VkPipelineShaderStageCreateInfo[] (InitShaders)" -> "VkDevice (CreateDevice)";
+  "VkRenderPass (InitRenderPass)" -> "VkDevice (CreateDevice)";
+  "VkRenderPass (InitRenderPass)" -> "VkFormat (InitializeDeviceSurface)";
+  "VkRenderPass (InitRenderPass)" -> "VkFormat (CreateDepthBuffer)";
+  
+  
+  "(ExecuteQueueCommandBuffer)" -> "VkQueue (PopulateSwapChainImages)";
+  "(ExecuteQueueCommandBuffer)" -> "VkDevice (CreateDevice)";
+  "(ExecuteQueueCommandBuffer)" -> "VkCommandBuffer (CreateCommandBuffer)";
+  
+  
+  "VkQueue (PopulateSwapChainImages)" -> "VkDevice (CreateDevice)";
+  
+  // Me toca seguir por el uniform buffer
+}
