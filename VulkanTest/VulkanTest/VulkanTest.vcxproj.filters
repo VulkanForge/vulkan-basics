@@ -240,6 +240,129 @@
     <ClInclude Include="src\Common\VulkanCommon.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="lib\glslang\hlsl\hlslGrammar.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\hlsl\hlslParseHelper.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\hlsl\hlslScanContext.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\hlsl\hlslTokens.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\OGLCompilersDLL\InitializeDll.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\SPIRV\disassemble.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\SPIRV\doc.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\SPIRV\GLSL.std.450.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\SPIRV\GlslangToSpv.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\SPIRV\spirv.hpp">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\SPIRV\SpvBuilder.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\SPIRV\spvIR.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\SPIRV\SPVRemapper.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\Include\arrays.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\Include\BaseTypes.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\Include\Common.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\Include\ConstantUnion.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\Include\InfoSink.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\Include\InitializeGlobals.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\Include\intermediate.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\Include\PoolAlloc.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\Include\ResourceLimits.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\Include\revision.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\Include\ShHandle.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\Include\Types.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\MachineIndependent\preprocessor\PpContext.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\MachineIndependent\preprocessor\PpTokens.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\MachineIndependent\gl_types.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\MachineIndependent\glslang_tab.cpp.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\MachineIndependent\Initialize.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\MachineIndependent\localintermediate.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\MachineIndependent\ParseHelper.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\MachineIndependent\parseVersions.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\MachineIndependent\reflection.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\MachineIndependent\RemoveTree.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\MachineIndependent\Scan.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\MachineIndependent\ScanContext.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\MachineIndependent\SymbolTable.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\MachineIndependent\Versions.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\OSDependent\osinclude.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glslang\glslang\Public\ShaderLang.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -255,6 +378,126 @@
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
     <ClCompile Include="src\Common\VulkanCommon.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\hlsl\hlslGrammar.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\hlsl\hlslParseHelper.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\hlsl\hlslScanContext.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\OGLCompilersDLL\InitializeDll.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\SPIRV\disassemble.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\SPIRV\doc.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\SPIRV\GlslangToSpv.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\SPIRV\InReadableOrder.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\SPIRV\SpvBuilder.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\SPIRV\SPVRemapper.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\GenericCodeGen\CodeGen.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\GenericCodeGen\Link.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\preprocessor\Pp.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\preprocessor\PpAtom.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\preprocessor\PpContext.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\preprocessor\PpMemory.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\preprocessor\PpScanner.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\preprocessor\PpSymbols.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\preprocessor\PpTokens.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\Constant.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\glslang_tab.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\InfoSink.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\Initialize.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\Intermediate.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\intermOut.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\IntermTraverse.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\limits.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\linkValidate.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\parseConst.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\ParseHelper.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\PoolAlloc.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\reflection.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\RemoveTree.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\Scan.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\ShaderLang.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\SymbolTable.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\MachineIndependent\Versions.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\OSDependent\Unix\ossource.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\OSDependent\Windows\main.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\glslang\glslang\OSDependent\Windows\ossource.cpp">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
   </ItemGroup>

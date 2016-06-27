@@ -35,9 +35,10 @@
 //
 // This file contains the Linux-specific functions
 //
+#if defined(unix) || defined(__unix__) || defined(__unix)
+
 #include "../osinclude.h"
 #include "../../../OGLCompilersDLL/InitializeDll.h"
-
 #include <pthread.h>
 #include <semaphore.h>
 #include <assert.h>
@@ -188,3 +189,5 @@ void OS_DumpMemoryCounters()
 }
 
 } // end namespace glslang
+
+#endif
