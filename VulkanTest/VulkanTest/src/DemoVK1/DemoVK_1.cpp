@@ -280,6 +280,13 @@ bool DemoVK_1::InitVulkan() {
     }
     std::cout << "Vertex Buffer created" << std::endl;
 
+    //Init Pipeline
+    outcome = VulkanCommon::InitPipeline(_vulkanInfo);
+    if (outcome.vkResult != VK_SUCCESS || outcome.vfResult != VulkanCommon::VulkanForge_Result::SUCCESS) {
+        std::cerr << "error initializing pipeline - VkResult: " << outcome.vkResult << "  VfResult " << outcome.vfResult << std::endl;
+        return false;
+    }
+    std::cout << "Pipeline Initialized" << std::endl;
 
     //End Command Buffer
     vkResult = VulkanCommon::EndCommandBuffer(_vulkanInfo);

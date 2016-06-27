@@ -15,6 +15,9 @@
 #define APP_NAME_STR_LEN 80
 #define NUM_DESCRIPTOR_SETS 1
 
+#define NUM_VIEWPORTS 1;
+#define NUM_SCISSORS 1;
+
 #else // _WIN32
 #include <unistd.h>
 #endif // _WIN32
@@ -124,6 +127,9 @@ public:
         VkDescriptorPool descriptorPool;
         std::vector<VkDescriptorSet> descriptorSet;
 
+        VkPipelineCache pipelineCache;
+        VkPipeline pipeline;
+
         uint32_t currentBuffer;
 
         std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
@@ -226,6 +232,8 @@ public:
     static VulkanForge_outcome CreateVertexBuffer(VulkanForge_info& info);
 
     static VulkanForge_outcome AllocateDescriptorSet(VulkanForge_info& info);
+
+    static VulkanForge_outcome InitPipeline(VulkanForge_info& info);
 };
 
 #endif
