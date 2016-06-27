@@ -1298,3 +1298,50 @@ VulkanCommon::VulkanForge_outcome VulkanCommon::CreateVertexBuffer(VulkanForge_i
 
     return outcome;
 }
+
+
+VulkanCommon::VulkanForge_outcome VulkanCommon::AllocateDescriptorSet(VulkanForge_info& info) {
+    
+    VulkanForge_outcome outcome = {};
+
+    VkDescriptorPoolSize type_count[1];
+    type_count[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    type_count[0].descriptorCount = 1;
+
+    VkDescriptorPoolCreateInfo descriptor_pool = {};
+    descriptor_pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    descriptor_pool.pNext = NULL;
+    descriptor_pool.maxSets = 1;
+    descriptor_pool.poolSizeCount = 1;
+    descriptor_pool.pPoolSizes = type_count;
+
+    outcome.vkResult = vkCreateDescriptorPool(info.device, &descriptor_pool, NULL, &info.descriptorPool);
+    if (outcome.vkResult) return outcome;
+
+    VkDescriptorSetAllocateInfo alloc_info[1];
+    alloc_info[0].sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    alloc_info[0].pNext = NULL;
+    alloc_info[0].descriptorPool = info.descriptorPool;
+    alloc_info[0].descriptorSetCount = NUM_DESCRIPTOR_SETS;
+    alloc_info[0].pSetLayouts = info.descriptorLayout.data();
+
+    info.descriptorSet.resize(NUM_DESCRIPTOR_SETS);
+    outcome.vkResult = vkAllocateDescriptorSets(info.device, alloc_info, info.descriptorSet.data());
+    if (outcome.vkResult) return outcome;
+
+    VkWriteDescriptorSet writes[1];
+
+    writes[0] = {};
+    writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writes[0].pNext = NULL;
+    writes[0].dstSet = info.descriptorSet[0];
+    writes[0].descriptorCount = 1;
+    writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    writes[0].pBufferInfo = &info.uniform.bufferInfo;
+    writes[0].dstArrayElement = 0;
+    writes[0].dstBinding = 0;
+
+    vkUpdateDescriptorSets(info.device, 1, writes, 0, NULL);
+
+    return outcome;
+}

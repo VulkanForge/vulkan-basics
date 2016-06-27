@@ -121,6 +121,9 @@ public:
         VkVertexInputBindingDescription viBinding;
         VkVertexInputAttributeDescription viAttribs[2];
 
+        VkDescriptorPool descriptorPool;
+        std::vector<VkDescriptorSet> descriptorSet;
+
         uint32_t currentBuffer;
 
         std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
@@ -221,6 +224,8 @@ public:
     static VulkanForge_outcome InitFrameBuffer(VulkanForge_info& info);
 
     static VulkanForge_outcome CreateVertexBuffer(VulkanForge_info& info);
+
+    static VulkanForge_outcome AllocateDescriptorSet(VulkanForge_info& info);
 };
 
 #endif

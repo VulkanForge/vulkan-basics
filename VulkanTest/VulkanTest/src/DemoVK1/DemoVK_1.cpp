@@ -240,6 +240,14 @@ bool DemoVK_1::InitVulkan() {
     }
     std::cout << "Created Pipeline Layout" << std::endl;
 
+    //AllocateDescriptorSets
+    outcome = VulkanCommon::AllocateDescriptorSet(_vulkanInfo);
+    if (outcome.vkResult != VK_SUCCESS || outcome.vfResult != VulkanCommon::VulkanForge_Result::SUCCESS) {
+        std::cerr << "error allocating descriptor set - VkResult: " << outcome.vkResult << "  VfResult " << outcome.vfResult << std::endl;
+        return false;
+    }
+    std::cout << "Allocated Descriptor Set" << std::endl;
+
     //Init Render Pass
     outcome = VulkanCommon::InitRenderPass(_vulkanInfo);
     if (outcome.vkResult != VK_SUCCESS || outcome.vfResult != VulkanCommon::VulkanForge_Result::SUCCESS) {
