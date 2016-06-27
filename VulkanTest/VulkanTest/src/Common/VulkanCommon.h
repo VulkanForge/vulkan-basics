@@ -27,6 +27,7 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <SPIRV/GlslangToSpv.h>
 
+#include "../Data/cube_data.h"
 
 class VulkanCommon {
 public:
@@ -68,6 +69,8 @@ public:
         VkDeviceMemory deviceMemory;
         VkDescriptorBufferInfo bufferInfo;
     };
+
+    typedef VulkanForge_uniform VulkanForge_vertexBuffer;
 
     struct VulkanForge_info {
         uint32_t width;
@@ -112,6 +115,13 @@ public:
         VkRenderPass renderPass;
 
         VkFramebuffer* frameBuffers;
+
+        VulkanForge_vertexBuffer vertexBuffer;
+
+        VkVertexInputBindingDescription viBinding;
+        VkVertexInputAttributeDescription viAttribs[2];
+
+        uint32_t currentBuffer;
 
         std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 
@@ -209,6 +219,8 @@ public:
     static VulkanForge_outcome InitShaders(VulkanForge_info& info);
 
     static VulkanForge_outcome InitFrameBuffer(VulkanForge_info& info);
+
+    static VulkanForge_outcome CreateVertexBuffer(VulkanForge_info& info);
 };
 
 #endif

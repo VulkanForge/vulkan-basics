@@ -1198,3 +1198,103 @@ VulkanCommon::VulkanForge_outcome VulkanCommon::InitFrameBuffer(VulkanForge_info
     return outcome;
 }
 
+VulkanCommon::VulkanForge_outcome VulkanCommon::CreateVertexBuffer(VulkanForge_info& info) {
+    VulkanForge_outcome outcome {};
+    
+    VkBufferCreateInfo buf_info = {};
+    buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    buf_info.pNext = NULL;
+    buf_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    buf_info.size = sizeof(g_vb_solid_face_colors_Data);
+    buf_info.queueFamilyIndexCount = 0;
+    buf_info.pQueueFamilyIndices = NULL;
+    buf_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    buf_info.flags = 0;
+    outcome.vkResult = vkCreateBuffer(info.device, &buf_info, NULL, &info.vertexBuffer.buffer);
+    //assert(res == VK_SUCCESS);
+    if (outcome.vkResult) return outcome;
+
+    VkMemoryRequirements mem_reqs;
+    vkGetBufferMemoryRequirements(info.device, info.vertexBuffer.buffer,
+        &mem_reqs);
+
+    VkMemoryAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    alloc_info.pNext = NULL;
+    alloc_info.memoryTypeIndex = 0;
+
+    alloc_info.allocationSize = mem_reqs.size;
+    bool checked = checkMemoryTypesFromProperties(info, mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &alloc_info.memoryTypeIndex);
+
+    if (!checked) {
+        outcome.vfResult = VulkanForge_Result::MEMORY_TYPE_REQUIRED_NOT_AVAILABLE;
+        return outcome;
+    }
+
+    outcome.vkResult = vkAllocateMemory(info.device, &alloc_info, NULL, &(info.vertexBuffer.deviceMemory));
+    if (outcome.vkResult) return outcome;
+
+
+    uint8_t *pData;
+    outcome.vkResult = vkMapMemory(info.device, info.vertexBuffer.deviceMemory, 0, mem_reqs.size, 0, (void **)&pData);
+    if (outcome.vkResult) return outcome;
+
+
+    memcpy(pData, g_vb_solid_face_colors_Data, sizeof(g_vb_solid_face_colors_Data));
+
+    vkUnmapMemory(info.device, info.vertexBuffer.deviceMemory);
+
+    outcome.vkResult = vkBindBufferMemory(info.device, info.vertexBuffer.buffer, info.vertexBuffer.deviceMemory, 0);
+    if (outcome.vkResult) return outcome;
+
+
+    /* We won't use these here, but we will need this info when creating the
+    * pipeline */
+    info.viBinding.binding = 0;
+    info.viBinding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+    info.viBinding.stride = sizeof(g_vb_solid_face_colors_Data[0]);
+
+    info.viAttribs[0].binding = 0;
+    info.viAttribs[0].location = 0;
+    info.viAttribs[0].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+    info.viAttribs[0].offset = 0;
+    info.viAttribs[1].binding = 0;
+    info.viAttribs[1].location = 1;
+    info.viAttribs[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+    info.viAttribs[1].offset = 16;
+
+    const VkDeviceSize offsets[1] = { 0 };
+
+    /* We cannot bind the vertex buffer until we begin a renderpass */
+    VkClearValue clear_values[2];
+    clear_values[0].color.float32[0] = 0.2f;
+    clear_values[0].color.float32[1] = 0.2f;
+    clear_values[0].color.float32[2] = 0.2f;
+    clear_values[0].color.float32[3] = 0.2f;
+    clear_values[1].depthStencil.depth = 1.0f;
+    clear_values[1].depthStencil.stencil = 0;
+
+    VkRenderPassBeginInfo rp_begin = {};
+    rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    rp_begin.pNext = NULL;
+    rp_begin.renderPass = info.renderPass;
+    rp_begin.framebuffer = info.frameBuffers[info.currentBuffer];
+    rp_begin.renderArea.offset.x = 0;
+    rp_begin.renderArea.offset.y = 0;
+    rp_begin.renderArea.extent.width = info.width;
+    rp_begin.renderArea.extent.height = info.height;
+    rp_begin.clearValueCount = 2;
+    rp_begin.pClearValues = clear_values;
+
+    vkCmdBeginRenderPass(info.commandBuffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+
+    vkCmdBindVertexBuffers(info.commandBuffer,
+                            0,                          /* Start Binding */
+                            1,                          /* Binding Count */
+                            &info.vertexBuffer.buffer,  /* pBuffers */
+                            offsets);                   /* pOffsets */
+
+    vkCmdEndRenderPass(info.commandBuffer);
+
+    return outcome;
+}
