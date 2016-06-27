@@ -1162,3 +1162,39 @@ VulkanCommon::VulkanForge_outcome VulkanCommon::InitShaders(VulkanForge_info& in
     //vkDestroyShaderModule(info.device, info.shaderStages[0].module, NULL);
     //vkDestroyShaderModule(info.device, info.shaderStages[1].module, NULL);
 }
+
+
+VulkanCommon::VulkanForge_outcome VulkanCommon::InitFrameBuffer(VulkanForge_info& info) {
+    VulkanForge_outcome outcome = VulkanForge_outcome{};
+
+    VkImageView attachments[2];
+    attachments[1] = info.depth.view;
+    
+    VkFramebufferCreateInfo fb_info = {};
+    fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    fb_info.pNext = NULL;
+    fb_info.renderPass = info.renderPass;
+    fb_info.attachmentCount = 2;
+    fb_info.pAttachments = attachments;
+    fb_info.width = info.width;
+    fb_info.height = info.height;
+    fb_info.layers = 1;
+
+    uint32_t i;
+    info.frameBuffers = (VkFramebuffer *)malloc(info.swapchainImageCount * sizeof(VkFramebuffer));
+
+    if (!info.frameBuffers) {
+        outcome.vfResult = VulkanForge_Result::FRAME_BUFFERS_NOT_ALLOCATED;
+        return outcome;
+    }
+
+    for (i = 0; i < info.swapchainImageCount; i++) {
+        attachments[0] = info.swapchainBuffers[i].swapchainView;
+        outcome.vkResult = vkCreateFramebuffer(info.device, &fb_info, NULL, &info.frameBuffers[i]);
+
+        if (outcome.vkResult) return outcome;
+    }
+
+    return outcome;
+}
+
