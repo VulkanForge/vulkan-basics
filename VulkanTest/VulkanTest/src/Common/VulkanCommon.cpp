@@ -1488,3 +1488,170 @@ VulkanCommon::VulkanForge_outcome VulkanCommon::InitPipeline(VulkanForge_info& i
     
     return outcome; 
 }
+
+VulkanCommon::VulkanForge_outcome VulkanCommon::DrawCube(VulkanForge_info& info) {
+    VulkanForge_outcome outcome = {};
+
+
+    VkClearValue clear_values[2];
+    clear_values[0].color.float32[0] = 0.2f;
+    clear_values[0].color.float32[1] = 0.2f;
+    clear_values[0].color.float32[2] = 0.2f;
+    clear_values[0].color.float32[3] = 0.2f;
+    clear_values[1].depthStencil.depth = 1.0f;
+    clear_values[1].depthStencil.stencil = 0;
+
+
+    VkSemaphore presentCompleteSemaphore;
+    VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo;
+    presentCompleteSemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    presentCompleteSemaphoreCreateInfo.pNext = NULL;
+    presentCompleteSemaphoreCreateInfo.flags = 0;
+    outcome.vkResult = vkCreateSemaphore(info.device, &presentCompleteSemaphoreCreateInfo, NULL, &presentCompleteSemaphore);
+    if (outcome.vkResult) return outcome;
+
+    // Get the index of the next available swapchain image:
+    outcome.vkResult = vkAcquireNextImageKHR(info.device, info.swapchain, UINT64_MAX,
+        presentCompleteSemaphore, VK_NULL_HANDLE, &info.currentBuffer);
+    if (outcome.vkResult) return outcome;
+
+    VkRenderPassBeginInfo rp_begin;
+    rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    rp_begin.pNext = NULL;
+    rp_begin.renderPass = info.renderPass;
+    rp_begin.framebuffer = info.frameBuffers[info.currentBuffer];
+    rp_begin.renderArea.offset.x = 0;
+    rp_begin.renderArea.offset.y = 0;
+    rp_begin.renderArea.extent.width = info.width;
+    rp_begin.renderArea.extent.height = info.height;
+    rp_begin.clearValueCount = 2;
+    rp_begin.pClearValues = clear_values;
+
+    vkCmdBeginRenderPass(info.commandBuffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+
+    vkCmdBindPipeline(info.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, info.pipeline);
+    vkCmdBindDescriptorSets(info.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+        info.pipelineLayout, 0, NUM_DESCRIPTOR_SETS,
+        info.descriptorSet.data(), 0, NULL);
+
+
+    const VkDeviceSize offsets[1] = { 0 };
+    vkCmdBindVertexBuffers(info.commandBuffer, 0, 1, &info.vertexBuffer.buffer, offsets);
+
+    /* INIT VIEWPORTS */
+#ifdef __ANDROID__
+    // Disable dynamic viewport on Android. Some drive has an issue with the dynamic viewport
+    // feature.
+#else
+    info.viewport.height = (float)info.height;
+    info.viewport.width = (float)info.width;
+    info.viewport.minDepth = (float)0.0f;
+    info.viewport.maxDepth = (float)1.0f;
+    info.viewport.x = 0;
+    info.viewport.y = 0;
+    vkCmdSetViewport(info.commandBuffer, 0, NUM_VIEWPORTS, &info.viewport);
+#endif
+
+    /* INIT SCISSORS */
+#ifdef __ANDROID__
+    // Disable dynamic viewport on Android. Some drive has an issue with the dynamic scissors
+    // feature.
+#else
+    info.scissor.extent.width = info.width;
+    info.scissor.extent.height = info.height;
+    info.scissor.offset.x = 0;
+    info.scissor.offset.y = 0;
+    vkCmdSetScissor(info.commandBuffer, 0, NUM_SCISSORS, &info.scissor);
+#endif
+
+    vkCmdDraw(info.commandBuffer, 12 * 3, 1, 0, 0);
+    vkCmdEndRenderPass(info.commandBuffer);
+
+
+    VkImageMemoryBarrier prePresentBarrier = {};
+    prePresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    prePresentBarrier.pNext = NULL;
+    prePresentBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    prePresentBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    prePresentBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    prePresentBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    prePresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    prePresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    prePresentBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    prePresentBarrier.subresourceRange.baseMipLevel = 0;
+    prePresentBarrier.subresourceRange.levelCount = 1;
+    prePresentBarrier.subresourceRange.baseArrayLayer = 0;
+    prePresentBarrier.subresourceRange.layerCount = 1;
+    prePresentBarrier.image = info.swapchainBuffers[info.currentBuffer].swapchainImage;
+    vkCmdPipelineBarrier(info.commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, NULL, 0,
+        NULL, 1, &prePresentBarrier);
+
+
+    outcome.vkResult = vkEndCommandBuffer(info.commandBuffer);
+    const VkCommandBuffer cmd_bufs[] = { info.commandBuffer };
+    VkFenceCreateInfo fenceInfo;
+    VkFence drawFence;
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.pNext = NULL;
+    fenceInfo.flags = 0;
+    vkCreateFence(info.device, &fenceInfo, NULL, &drawFence);
+    if (outcome.vkResult) return outcome;
+
+
+    VkPipelineStageFlags pipe_stage_flags =
+        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    VkSubmitInfo submit_info[1] = {};
+    submit_info[0].pNext = NULL;
+    submit_info[0].sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info[0].waitSemaphoreCount = 1;
+    submit_info[0].pWaitSemaphores = &presentCompleteSemaphore;
+    submit_info[0].pWaitDstStageMask = &pipe_stage_flags;
+    submit_info[0].commandBufferCount = 1;
+    submit_info[0].pCommandBuffers = cmd_bufs;
+    submit_info[0].signalSemaphoreCount = 0;
+    submit_info[0].pSignalSemaphores = NULL;
+
+
+    /* Queue the command buffer for execution */
+    outcome.vkResult = vkQueueSubmit(info.queue, 1, submit_info, drawFence);
+    if (outcome.vkResult) return outcome;
+
+    /* Now present the image in the window */
+
+    VkPresentInfoKHR present;
+    present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    present.pNext = NULL;
+    present.swapchainCount = 1;
+    present.pSwapchains = &info.swapchain;
+    present.pImageIndices = &info.currentBuffer;
+    present.pWaitSemaphores = NULL;
+    present.waitSemaphoreCount = 0;
+    present.pResults = NULL;
+
+    /* Make sure command buffer is finished before presenting */
+    do {
+        outcome.vkResult = vkWaitForFences(info.device, 1, &drawFence, VK_TRUE, FENCE_TIMEOUT);
+    } while (outcome.vkResult == VK_TIMEOUT);
+
+    if (outcome.vkResult) return outcome;
+    outcome.vkResult = vkQueuePresentKHR(info.queue, &present);
+    if (outcome.vkResult) return outcome;
+
+#ifdef WIN32
+    Sleep(1000);
+#elif defined(__ANDROID__)
+    sleep(1000);
+#else
+    sleep(1000);
+#endif
+
+    /* VULKAN_KEY_END */
+    /*if (info.save_images)
+        write_ppm(info, "drawcube");*/
+
+    vkDestroySemaphore(info.device, presentCompleteSemaphore, NULL);
+    vkDestroyFence(info.device, drawFence, NULL);
+
+    return outcome;
+}

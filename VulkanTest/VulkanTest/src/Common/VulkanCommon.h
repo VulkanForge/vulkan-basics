@@ -15,8 +15,9 @@
 #define APP_NAME_STR_LEN 80
 #define NUM_DESCRIPTOR_SETS 1
 
-#define NUM_VIEWPORTS 1;
-#define NUM_SCISSORS 1;
+#define NUM_VIEWPORTS 1
+#define NUM_SCISSORS 1
+#define FENCE_TIMEOUT 100000000
 
 #else // _WIN32
 #include <unistd.h>
@@ -134,6 +135,9 @@ public:
 
         std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 
+        VkViewport viewport;
+        VkRect2D scissor;
+
         glm::mat4 Projection;
         glm::mat4 View;
         glm::mat4 Model;
@@ -234,6 +238,8 @@ public:
     static VulkanForge_outcome AllocateDescriptorSet(VulkanForge_info& info);
 
     static VulkanForge_outcome InitPipeline(VulkanForge_info& info);
+
+    static VulkanForge_outcome DrawCube(VulkanForge_info& info);
 };
 
 #endif

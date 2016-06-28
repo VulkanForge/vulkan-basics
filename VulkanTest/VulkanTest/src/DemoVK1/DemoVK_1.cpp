@@ -131,13 +131,11 @@ bool DemoVK_1::InitVulkan() {
         std::cerr << "error finding graphic Queue" << std::endl;
         return false;
     }
-
     vkResult = VulkanCommon::CreateDevice(_vulkanInfo);
     if (vkResult != VK_SUCCESS || _vulkanInfo.device == NULL) {
         std::cerr << "error creating vulkan device - VkResult: " << vkResult << std::endl;
         return false;
     }
-
     std::cout << "Vulkan device created" << std::endl;
 
     // Attach SDL window
@@ -159,7 +157,6 @@ bool DemoVK_1::InitVulkan() {
         std::cerr << "Could not create a Surface Descriptor - VkResult: " << vkResult << std::endl;
         return false;
     }
-
     std::cout << "Surface descriptor created" << std::endl;
 
 
@@ -168,7 +165,6 @@ bool DemoVK_1::InitVulkan() {
         std::cerr << "Could not find a queue that supports both graphics and present" << std::endl;
         return false;
     }
-    
     std::cout << "Found Graphics And Present Queue" << std::endl;
 
     //Initialize Device Surface and Swap Chain
@@ -177,7 +173,6 @@ bool DemoVK_1::InitVulkan() {
         std::cerr << "error initializing device surface or swap chain - VkResult: " << vkResult << std::endl;
         return false;
     }
-
     std::cout << "Device Surface and Swap Chain initialized" << std::endl;
 
 
@@ -187,7 +182,6 @@ bool DemoVK_1::InitVulkan() {
         std::cerr << "error creating command Pool - VkResult: " << vkResult << std::endl;
         return false;
     }
-
     std::cout << "Command Pool created" << std::endl;
 
     //Create Command Buffer
@@ -288,6 +282,14 @@ bool DemoVK_1::InitVulkan() {
     }
     std::cout << "Pipeline Initialized" << std::endl;
 
+    //Init Pipeline
+    outcome = VulkanCommon::DrawCube(_vulkanInfo);
+    if (outcome.vkResult != VK_SUCCESS || outcome.vfResult != VulkanCommon::VulkanForge_Result::SUCCESS) {
+        std::cerr << "error drawing cube - VkResult: " << outcome.vkResult << "  VfResult " << outcome.vfResult << std::endl;
+        return false;
+    }
+    std::cout << "Cube Drawed thanks to god" << std::endl;
+    /*
     //End Command Buffer
     vkResult = VulkanCommon::EndCommandBuffer(_vulkanInfo);
     if (vkResult != VK_SUCCESS || _vulkanInfo.commandBuffer == NULL) {
@@ -304,6 +306,6 @@ bool DemoVK_1::InitVulkan() {
         return false;
     }
     std::cout << "Executed Command Buffer Queue" << std::endl;
-
+    */
     return true;
 }
