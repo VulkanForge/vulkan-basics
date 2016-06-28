@@ -184,6 +184,7 @@
     <ClInclude Include="lib\SDL2\include\SDL_video.h" />
     <ClInclude Include="src\Common\Common.h" />
     <ClInclude Include="src\Common\VulkanCommon.h" />
+    <ClInclude Include="src\Data\cube_data.h" />
     <ClInclude Include="src\Demo1\Demo_1.h" />
     <ClInclude Include="src\Demo2\Demo_2.h" />
     <ClInclude Include="src\DemoVK1\DemoVK_1.h" />

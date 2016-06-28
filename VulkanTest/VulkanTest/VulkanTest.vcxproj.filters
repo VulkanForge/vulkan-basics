@@ -363,6 +363,9 @@
     <ClInclude Include="lib\glslang\glslang\Public\ShaderLang.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="src\Data\cube_data.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">

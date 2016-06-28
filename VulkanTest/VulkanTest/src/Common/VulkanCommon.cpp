@@ -862,18 +862,18 @@ VulkanCommon::VulkanForge_outcome VulkanCommon::CreateDepthBuffer(VulkanForge_in
 VulkanCommon::VulkanForge_outcome VulkanCommon::CreateUniformBuffer(VulkanForge_info& info) {
     VulkanCommon::VulkanForge_outcome outcome = { VkResult::VK_SUCCESS, VulkanCommon::VulkanForge_Result::SUCCESS };
     
-    info.Projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+    info.Projection = glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 100.0f);
     info.View = glm::lookAt(
-        glm::vec3(0, 3, 10), // Camera is at (0,3,10), in World Space
+        glm::vec3(5, 3, 10), // Camera is at (0,3,10), in World Space
         glm::vec3(0, 0, 0),  // and looks at the origin
         glm::vec3(0, -1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
     );
     info.Model = glm::mat4(1.0f);
     // Vulkan clip space has inverted Y and half Z.
-    info.Clip = glm::mat4(	1.0f, 0.0f, 0.0f, 0.0f,
+    info.Clip = glm::mat4(	1.0f,  0.0f, 0.0f, 0.0f,
                             0.0f, -1.0f, 0.0f, 0.0f,
-                            0.0f, 0.0f, 0.5f, 0.0f,
-                            0.0f, 0.0f, 0.5f, 1.0f);
+                            0.0f,  0.0f, 0.5f, 0.0f,
+                            0.0f,  0.0f, 0.5f, 1.0f);
 
     info.MVP = info.Clip * info.Projection * info.View * info.Model;
 
@@ -1390,7 +1390,7 @@ VulkanCommon::VulkanForge_outcome VulkanCommon::InitPipeline(VulkanForge_info& i
     rs.flags = 0;
     rs.polygonMode = VK_POLYGON_MODE_FILL;
     rs.cullMode = VK_CULL_MODE_BACK_BIT;
-    rs.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rs.frontFace = VK_FRONT_FACE_CLOCKWISE;
     rs.depthClampEnable = VK_TRUE;
     rs.rasterizerDiscardEnable = VK_FALSE;
     rs.depthBiasEnable = VK_FALSE;
