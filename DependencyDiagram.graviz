@@ -17,12 +17,17 @@ digraph g {
   "VfSwapchainBuffer{} (InitializeDeviceSurface)" [fillcolor = "#AABBFF"];
   "VfDepthBuffer{} (CreateDepthBuffer)" [fillcolor = "#AABBFF"];
   "VfUniformBuffer{} (CreateUniformBuffer)" [fillcolor = "#AABBFF"];
+  "VfVertexBuffer{} (CreateVertexBuffer)" [fillcolor = "#AABBFF"];
   
   "(BeginCommandBuffer)" [fillcolor = "#DDFFDD"];
   "(ExecuteQueueCommandBuffer)" [fillcolor = "#DDFFDD"];
+  "GLSLtoSPV" [fillcolor = "#DDFFDD"];
+  
+  "DRAW" [fillcolor = "#B0FF77", fontname = "helvetica bold", fontsize = 18 ];
   
   "MVP" [fillcolor = "#FFDDDD"];
   "HWND window (SDL)" [fillcolor = "#FFDDDD"];
+  "Mesh Info" [fillcolor = "#FFDDDD"];
   
   // Graph start
   "VkPhysicalDevice[] (CheckDevices)" -> "VkInstance (CreateInstance)";
@@ -69,10 +74,15 @@ digraph g {
     label = "Command Buffer";
     "VkCommandBuffer (CreateCommandBuffer)" -> "VkCommandPool (CreateCommandPool)";
     "(BeginCommandBuffer)" -> "VkCommandBuffer (CreateCommandBuffer)";
+    "(ExecuteQueueCommandBuffer)" -> "VkQueue (PopulateSwapChainImages)";
+    "(ExecuteQueueCommandBuffer)" -> "VkCommandBuffer (CreateCommandBuffer)";
   }
   
   "VkCommandPool (CreateCommandPool)" -> "VkDevice (CreateDevice)";
   "VkCommandBuffer (CreateCommandBuffer)" -> "VkDevice (CreateDevice)";
+  
+  "(ExecuteQueueCommandBuffer)" -> "VkDevice (CreateDevice)";
+  "VkQueue (PopulateSwapChainImages)" -> "VkDevice (CreateDevice)";
   
   
   
@@ -127,7 +137,7 @@ digraph g {
   "VkDeviceMemory (CreateUniformBuffer)" -> "VkPhysicalDeviceMemoryProperties (TryGetGraphicQueue)";
   
   
-   // UNIFORM BUFFER
+   // Pipeline & renderpass
   subgraph cluster_4 {
     node [style=filled];
     color="#000000";
@@ -137,6 +147,7 @@ digraph g {
     "VkPipelineLayout (CreatePipelineLayout)" -> "VkDescriptorSetLayout[] (CreatePipelineLayout)";
     "VkRenderPass (InitRenderPass)";
     "VkPipelineShaderStageCreateInfo[] (InitShaders)";
+    "VkPipelineShaderStageCreateInfo[] (InitShaders)" -> "GLSLtoSPV";
   }
   "VkDescriptorSetLayout[] (CreatePipelineLayout)" -> "VkDevice (CreateDevice)";
   "VkPipelineLayout (CreatePipelineLayout)" -> "VkDevice (CreateDevice)";
@@ -145,13 +156,113 @@ digraph g {
   "VkRenderPass (InitRenderPass)" -> "VkFormat (InitializeDeviceSurface)";
   "VkRenderPass (InitRenderPass)" -> "VkFormat (CreateDepthBuffer)";
   
+  // InitPipeline 
+  /* susceptible de ser separado o junto con el anterior
+       - para separarlo llamarlos cluster 4 y 5 respectivamente
+       - para mantenerlos juntos los dos han de ser cluster 4
+   */
+  subgraph cluster_4 {
+    node [style=filled];
+    color="#000000";
+    fontsize = 15;
+    label = "Init Pipeline";
+    
+    "VkPipeline (InitPipeline)" -> "VkPipelineCache (InitPipeline)";
+  }
+  "VkPipelineCache (InitPipeline)" -> "VkDevice (CreateDevice)";
   
-  "(ExecuteQueueCommandBuffer)" -> "VkQueue (PopulateSwapChainImages)";
-  "(ExecuteQueueCommandBuffer)" -> "VkDevice (CreateDevice)";
-  "(ExecuteQueueCommandBuffer)" -> "VkCommandBuffer (CreateCommandBuffer)";
+  "VkPipeline (InitPipeline)" -> "VkDevice (CreateDevice)";
+  "VkPipeline (InitPipeline)" -> "VkRenderPass (InitRenderPass)";
+  "VkPipeline (InitPipeline)" -> "VkPipelineShaderStageCreateInfo[] (InitShaders)";
+  "VkPipeline (InitPipeline)" -> "VkPipelineLayout (CreatePipelineLayout)";
+  "VkPipeline (InitPipeline)" -> "VkVertexInputBindingDescription (CreateVertexBuffer)" ;
+  "VkPipeline (InitPipeline)" -> "VkVertexInputAttributeDescription[] (CreateVertexBuffer)";
+  
+  // Framebuffers
+  "VkFramebuffer[] (InitFrameBuffer)" -> "VkDevice (CreateDevice)";
+  "VkFramebuffer[] (InitFrameBuffer)" -> "VkRenderPass (InitRenderPass)";
+  "VkFramebuffer[] (InitFrameBuffer)" -> "VkImageView (CreateDepthBuffer)";
+  "VkFramebuffer[] (InitFrameBuffer)" -> "VkImageView (InitializeDeviceSurface)";
+  
+  // Vertexbuffer
+  subgraph cluster_6 {
+    node [style=filled];
+    color="#228822";
+    style=filled;
+    fillcolor = "#EEFFEE";
+    fontsize = 15;
+    label = "Vertex Buffer";
+    
+    "VkBuffer (CreateVertexBuffer)" -> "Mesh Info";
+    "VkDeviceMemory (CreateVertexBuffer)" -> "VkBuffer (CreateVertexBuffer)";
+    
+    "VfVertexBuffer{} (CreateVertexBuffer)" -> "VkBuffer (CreateVertexBuffer)";
+    "VfVertexBuffer{} (CreateVertexBuffer)" -> "VkDeviceMemory (CreateVertexBuffer)";
+    "VkVertexInputAttributeDescription[] (CreateVertexBuffer)";
+    "VkVertexInputBindingDescription (CreateVertexBuffer)" -> "Mesh Info";
+  }
+  "VkBuffer (CreateVertexBuffer)" -> "VkDevice (CreateDevice)";
+
+  "VkDeviceMemory (CreateVertexBuffer)" -> "VkDevice (CreateDevice)";
+  "VkDeviceMemory (CreateVertexBuffer)" -> "VkPhysicalDeviceMemoryProperties (TryGetGraphicQueue)";
+
+  // AllocateDescriptorSet
+  subgraph cluster_7 {
+    node [style=filled];
+    color="#000000";
+    fontsize = 15;
+    label = "Descriptor Pool";
+    
+    "VkDescriptorSet[] (AllocateDescriptorSet)" -> "VkDescriptorPool (AllocateDescriptorSet)";
+  }
+  "VkDescriptorPool (AllocateDescriptorSet)" -> "VkDevice (CreateDevice)";
+  
+  "VkDescriptorSet[] (AllocateDescriptorSet)" -> "VkDevice (CreateDevice)";
+  "VkDescriptorSet[] (AllocateDescriptorSet)" -> "VkDescriptorSetLayout[] (CreatePipelineLayout)";
   
   
-  "VkQueue (PopulateSwapChainImages)" -> "VkDevice (CreateDevice)";
   
-  // Me toca seguir por el uniform buffer
+  // Draw Cube
+  "DRAW" -> "VkDevice (CreateDevice)";
+  "DRAW" -> "VkVertexInputAttributeDescription[] (CreateVertexBuffer)";
+  "DRAW" -> "VkSwapchainKHR (InitializeDeviceSurface)";
+  "DRAW" -> "VkRenderPass (InitRenderPass)";
+  "DRAW" -> "VkFramebuffer[] (InitFrameBuffer)";
+  "DRAW" -> "VkCommandBuffer (CreateCommandBuffer)";
+  "DRAW" -> "VkPipeline (InitPipeline)";
+  "DRAW" -> "VkPipelineLayout (CreatePipelineLayout)";
+  "DRAW" -> "VkDescriptorSet[] (AllocateDescriptorSet)";
+  "DRAW" -> "VkBuffer (CreateVertexBuffer)";
+  "DRAW" -> "VkImage (InitializeDeviceSurface)";
+  "DRAW" -> "VkQueue (PopulateSwapChainImages)";
+  "DRAW" -> "VkViewport (DrawCube)";
+  
+  "VkViewport (DrawCube)" -> "VkCommandBuffer (CreateCommandBuffer)";
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
