@@ -1215,8 +1215,7 @@ VulkanCommon::VulkanForge_outcome VulkanCommon::CreateVertexBuffer(VulkanForge_i
     if (outcome.vkResult) return outcome;
 
     VkMemoryRequirements mem_reqs;
-    vkGetBufferMemoryRequirements(info.device, info.vertexBuffer.buffer,
-        &mem_reqs);
+    vkGetBufferMemoryRequirements(info.device, info.vertexBuffer.buffer, &mem_reqs);
 
     VkMemoryAllocateInfo alloc_info = {};
     alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -1599,8 +1598,7 @@ VulkanCommon::VulkanForge_outcome VulkanCommon::DrawCube(VulkanForge_info& info)
     if (outcome.vkResult) return outcome;
 
 
-    VkPipelineStageFlags pipe_stage_flags =
-        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
     VkSubmitInfo submit_info[1] = {};
     submit_info[0].pNext = NULL;
     submit_info[0].sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
