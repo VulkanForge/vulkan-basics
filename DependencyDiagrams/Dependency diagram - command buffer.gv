@@ -1,0 +1,78 @@
+digraph g {
+  // STYLING
+  rankdir=RL;
+  graph [ fontname = "sans-serif",
+          fontsize = 24,
+          label = "\n\nVulkan\nStructure creation\ndependency graph",
+          ];
+  
+  node [  shape = rectangle,
+          style = filled,
+          color = "#302840",
+          fillcolor = "#E0DDFF",
+          fontname = "helvetica",
+          fontsize = 12 ];
+  
+  // Graph Contrete Styling
+  "(BeginCommandBuffer)" [fillcolor = "#DDFFDD"];
+  "(ExecuteQueueCommandBuffer)" [fillcolor = "#DDFFDD"];
+  
+  "DRAW" [fillcolor = "#B0FF77", fontname = "helvetica bold", fontsize = 18 ];
+  
+  // COMMAND BUFFER
+  subgraph cluster_1 {
+    node [style=filled];
+    color="#228822";
+    style=filled;
+    fillcolor = "#EEFFEE";
+    fontsize = 15;
+    label = "Command Buffer";
+    "VkCommandBuffer (CreateCommandBuffer)" -> "VkCommandPool (CreateCommandPool)";
+    "(BeginCommandBuffer)" -> "VkCommandBuffer (CreateCommandBuffer)";
+    "(ExecuteQueueCommandBuffer)" -> "VkQueue (PopulateSwapChainImages)";
+    "(ExecuteQueueCommandBuffer)" -> "VkCommandBuffer (CreateCommandBuffer)";
+  }
+  
+  "VkCommandPool (CreateCommandPool)" -> "VkDevice (CreateDevice)";
+  "VkCommandBuffer (CreateCommandBuffer)" -> "VkDevice (CreateDevice)";
+  
+  "(ExecuteQueueCommandBuffer)" -> "VkDevice (CreateDevice)";
+  "VkQueue (PopulateSwapChainImages)" -> "VkDevice (CreateDevice)";
+  
+  
+  
+  // Draw Cube
+  "DRAW" -> "VkCommandBuffer (CreateCommandBuffer)";
+  
+  "DRAW" -> "VkQueue (PopulateSwapChainImages)";
+  "DRAW" -> "VkViewport (DrawCube)";
+  
+  "VkViewport (DrawCube)" -> "VkCommandBuffer (CreateCommandBuffer)";
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

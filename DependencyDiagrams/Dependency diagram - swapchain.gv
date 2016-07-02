@@ -1,0 +1,92 @@
+digraph g {
+  // STYLING
+  rankdir=RL;
+  graph [ fontname = "sans-serif",
+          fontsize = 24,
+          label = "\n\nVulkan\nStructure creation\ndependency graph",
+          ];
+  
+  node [  shape = rectangle,
+          style = filled,
+          color = "#302840",
+          fillcolor = "#E0DDFF",
+          fontname = "helvetica",
+          fontsize = 12 ];
+  
+  // Graph Contrete Styling
+  "VfSwapchainBuffer{} (InitializeDeviceSurface)" [fillcolor = "#AABBFF"];
+  
+  "DRAW" [fillcolor = "#B0FF77", fontname = "helvetica bold", fontsize = 18 ];
+  
+  "HWND window (SDL)" [fillcolor = "#FFDDDD"];
+  
+  // SWAP CHAIN
+  subgraph cluster_0 {
+    node [style=filled];
+    color="#222222";
+    style=filled;
+    fillcolor = "#EEEEEE";
+    fontsize = 15;
+    label = "Swap Chain";
+  
+    "VkSurfaceKHR (CreateSurfaceDescription)" -> "HWND window (SDL)";
+    "VkFormat (InitializeDeviceSurface)" -> "VkSurfaceKHR (CreateSurfaceDescription)";
+    "VkSwapchainKHR (InitializeDeviceSurface)" -> "VkFormat (InitializeDeviceSurface)";
+    "VkSwapchainKHR (InitializeDeviceSurface)" -> "VkSurfaceKHR (CreateSurfaceDescription)";
+    "VkImage (InitializeDeviceSurface)" -> "VkSwapchainKHR (InitializeDeviceSurface)";
+    "VkImageView (InitializeDeviceSurface)" -> "VkImage (InitializeDeviceSurface)";
+    "VfSwapchainBuffer{} (InitializeDeviceSurface)" -> "VkImage (InitializeDeviceSurface)";
+    "VfSwapchainBuffer{} (InitializeDeviceSurface)" -> "VkImageView (InitializeDeviceSurface)";
+  }
+  
+  "VkSurfaceKHR (CreateSurfaceDescription)" -> "VkInstance (CreateInstance)";
+  "VkFormat (InitializeDeviceSurface)" -> "VkPhysicalDevice[] (CheckDevices)";
+  "VkImage (InitializeDeviceSurface)" -> "VkDevice (CreateDevice)";
+  "VkImageView (InitializeDeviceSurface)" -> "VkDevice (CreateDevice)";
+  "VkSwapchainKHR (InitializeDeviceSurface)" -> "VkDevice (CreateDevice)";
+  
+   // Pipeline & renderpass
+  subgraph cluster_4 {
+    node [style=filled];
+    color="#000000";
+    fontsize = 15;
+    label = "Pipeline & RenderPass";
+    
+    "VkRenderPass (InitRenderPass)";
+  }
+  "VkRenderPass (InitRenderPass)" -> "VkFormat (InitializeDeviceSurface)";
+  
+  // Framebuffers
+  "VkFramebuffer[] (InitFrameBuffer)" -> "VkImageView (InitializeDeviceSurface)";
+  
+  // Draw Cube
+  "DRAW" -> "VkSwapchainKHR (InitializeDeviceSurface)";
+  "DRAW" -> "VkImage (InitializeDeviceSurface)";
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

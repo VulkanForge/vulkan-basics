@@ -1,0 +1,73 @@
+digraph g {
+  // STYLING
+  rankdir=RL;
+  graph [ fontname = "sans-serif",
+          fontsize = 24,
+          label = "\n\nVulkan\nStructure creation\ndependency graph",
+          ];
+  
+  node [  shape = rectangle,
+          style = filled,
+          color = "#302840",
+          fillcolor = "#E0DDFF",
+          fontname = "helvetica",
+          fontsize = 12 ];
+  
+  // Graph Contrete Styling
+  "VfUniformBuffer{} (CreateUniformBuffer)" [fillcolor = "#AABBFF"];
+  
+  "MVP" [fillcolor = "#FFDDDD"];
+  
+   // UNIFORM BUFFER
+  subgraph cluster_3 {
+    node [style=filled];
+    color="#228822";
+    style=filled;
+    fillcolor = "#EEFFEE";
+    fontsize = 15;
+    label = "Uniform Buffer";
+    
+    "VkBuffer (CreateUniformBuffer)" -> "MVP";
+    
+    "VkDeviceMemory (CreateUniformBuffer)" -> "VkBuffer (CreateUniformBuffer)";
+    
+    "VkDescriptorBufferInfo (CreateUniformBuffer)" -> "VkBuffer (CreateUniformBuffer)";
+    "VkDescriptorBufferInfo (CreateUniformBuffer)" -> "MVP";
+  
+    "VfUniformBuffer{} (CreateUniformBuffer)" -> "VkBuffer (CreateUniformBuffer)";
+    "VfUniformBuffer{} (CreateUniformBuffer)" -> "VkDescriptorBufferInfo (CreateUniformBuffer)";
+    "VfUniformBuffer{} (CreateUniformBuffer)" -> "VkDeviceMemory (CreateUniformBuffer)";
+  }
+  
+  "VkBuffer (CreateUniformBuffer)" -> "VkDevice (CreateDevice)";
+  "VkDeviceMemory (CreateUniformBuffer)" -> "VkDevice (CreateDevice)";
+  "VkDeviceMemory (CreateUniformBuffer)" -> "VkPhysicalDeviceMemoryProperties (TryGetGraphicQueue)";
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,91 @@
+digraph g {
+  // STYLING
+  rankdir=RL;
+  graph [ fontname = "sans-serif",
+          fontsize = 24,
+          label = "\n\nVulkan\nStructure creation\ndependency graph",
+          ];
+  
+  node [  shape = rectangle,
+          style = filled,
+          color = "#302840",
+          fillcolor = "#E0DDFF",
+          fontname = "helvetica",
+          fontsize = 12 ];
+  
+  // Graph Contrete Styling
+  "VfVertexBuffer{} (CreateVertexBuffer)" [fillcolor = "#AABBFF"];
+  
+  "DRAW" [fillcolor = "#B0FF77", fontname = "helvetica bold", fontsize = 18 ];
+  
+  "Mesh Info" [fillcolor = "#FFDDDD"];
+  
+  // Graph start
+  
+  // InitPipeline
+  subgraph cluster_4 {
+    node [style=filled];
+    color="#000000";
+    fontsize = 15;
+    label = "Init Pipeline";
+    
+    "VkPipeline (InitPipeline)";
+  }
+  "VkPipeline (InitPipeline)" -> "VkVertexInputBindingDescription (CreateVertexBuffer)" ;
+  "VkPipeline (InitPipeline)" -> "VkVertexInputAttributeDescription[] (CreateVertexBuffer)";
+  
+  // Vertexbuffer
+  subgraph cluster_6 {
+    node [style=filled];
+    color="#228822";
+    style=filled;
+    fillcolor = "#EEFFEE";
+    fontsize = 15;
+    label = "Vertex Buffer";
+    
+    "VkBuffer (CreateVertexBuffer)" -> "Mesh Info";
+    "VkDeviceMemory (CreateVertexBuffer)" -> "VkBuffer (CreateVertexBuffer)";
+    
+    "VfVertexBuffer{} (CreateVertexBuffer)" -> "VkBuffer (CreateVertexBuffer)";
+    "VfVertexBuffer{} (CreateVertexBuffer)" -> "VkDeviceMemory (CreateVertexBuffer)";
+    "VkVertexInputAttributeDescription[] (CreateVertexBuffer)";
+    "VkVertexInputBindingDescription (CreateVertexBuffer)" -> "Mesh Info";
+  }
+  "VkBuffer (CreateVertexBuffer)" -> "VkDevice (CreateDevice)";
+
+  "VkDeviceMemory (CreateVertexBuffer)" -> "VkDevice (CreateDevice)";
+  "VkDeviceMemory (CreateVertexBuffer)" -> "VkPhysicalDeviceMemoryProperties (TryGetGraphicQueue)";
+
+  
+  // Draw Cube
+  "DRAW" -> "VkVertexInputAttributeDescription[] (CreateVertexBuffer)";
+  "DRAW" -> "VkBuffer (CreateVertexBuffer)";
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

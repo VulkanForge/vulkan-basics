@@ -1,0 +1,87 @@
+digraph g {
+  // STYLING
+  rankdir=RL;
+  graph [ fontname = "sans-serif",
+          fontsize = 24,
+          label = "\n\nVulkan\nStructure creation\ndependency graph",
+          ];
+  
+  node [  shape = rectangle,
+          style = filled,
+          color = "#302840",
+          fillcolor = "#E0DDFF",
+          fontname = "helvetica",
+          fontsize = 12 ];
+  
+  // Graph Contrete Styling
+  "VfDepthBuffer{} (CreateDepthBuffer)" [fillcolor = "#AABBFF"];
+  
+  // Graph start
+  
+  
+  // DEPTH BUFFER
+  subgraph cluster_2 {
+    node [style=filled];
+    color="#228822";
+    style=filled;
+    fillcolor = "#EEFFEE";
+    fontsize = 15;
+    label = "Depth Buffer";
+    "VkDeviceMemory (CreateDepthBuffer)" -> "VkImage (CreateDepthBuffer)";
+    "VkImageView (CreateDepthBuffer)" -> "VkImage (CreateDepthBuffer)";
+  
+    "VfDepthBuffer{} (CreateDepthBuffer)" -> "VkImage (CreateDepthBuffer)";
+    "VfDepthBuffer{} (CreateDepthBuffer)" -> "VkImageView (CreateDepthBuffer)";
+    "VfDepthBuffer{} (CreateDepthBuffer)" -> "VkDeviceMemory (CreateDepthBuffer)";
+    "VfDepthBuffer{} (CreateDepthBuffer)" -> "VkFormat (CreateDepthBuffer)";
+  }
+  
+  "VkImage (CreateDepthBuffer)" -> "VkDevice (CreateDevice)";
+  "VkImage (CreateDepthBuffer)" -> "VkPhysicalDevice[] (CheckDevices)";
+  "VkDeviceMemory (CreateDepthBuffer)" -> "VkPhysicalDeviceMemoryProperties (TryGetGraphicQueue)";
+
+  "VkDeviceMemory (CreateDepthBuffer)" -> "VkDevice (CreateDevice)";
+  "VkImageView (CreateDepthBuffer)" -> "VkDevice (CreateDevice)";
+  
+   // Pipeline & renderpass
+  subgraph cluster_4 {
+    node [style=filled];
+    color="#000000";
+    fontsize = 15;
+    label = "Pipeline & RenderPass";
+    
+    "VkRenderPass (InitRenderPass)";
+  }
+  "VkRenderPass (InitRenderPass)" -> "VkFormat (CreateDepthBuffer)";
+  
+  // Framebuffers
+  "VkFramebuffer[] (InitFrameBuffer)" -> "VkImageView (CreateDepthBuffer)";
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

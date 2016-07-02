@@ -1,0 +1,146 @@
+digraph g {
+  // STYLING
+  rankdir=RL;
+  graph [ fontname = "sans-serif",
+          fontsize = 24,
+          label = "\n\nVulkan\nStructure creation\ndependency graph",
+          ];
+  
+  node [  shape = rectangle,
+          style = filled,
+          color = "#302840",
+          fillcolor = "#E0DDFF",
+          fontname = "helvetica",
+          fontsize = 12 ];
+  
+  // Graph Contrete Styling
+  "GLSLtoSPV" [fillcolor = "#DDFFDD"];
+  
+  "DRAW" [fillcolor = "#B0FF77", fontname = "helvetica bold", fontsize = 18 ];
+  
+  // Vertexbuffer
+  subgraph cluster_6 {
+    node [style=filled];
+    color="#228822";
+    style=filled;
+    fillcolor = "#EEFFEE";
+    fontsize = 15;
+    label = "Vertex Buffer";
+    
+    "VkVertexInputAttributeDescription[] (CreateVertexBuffer)";
+    "VkVertexInputBindingDescription (CreateVertexBuffer)";
+  }
+  
+  // SWAP CHAIN
+  subgraph cluster_0 {
+    node [style=filled];
+    color="#222222";
+    style=filled;
+    fillcolor = "#EEEEEE";
+    fontsize = 15;
+    label = "Swap Chain";
+  
+    "VkFormat (InitializeDeviceSurface)";
+  }
+  
+  // DEPTH BUFFER
+  subgraph cluster_2 {
+    node [style=filled];
+    color="#228822";
+    style=filled;
+    fillcolor = "#EEFFEE";
+    fontsize = 15;
+    label = "Depth Buffer";
+    
+    "VkFormat (CreateDepthBuffer)";
+  }
+  
+  
+   // Pipeline & renderpass
+  subgraph cluster_4 {
+    node [style=filled];
+    color="#000000";
+    fontsize = 15;
+    label = "Pipeline & RenderPass";
+    
+    "VkPipelineLayout (CreatePipelineLayout)" -> "VkDescriptorSetLayout[] (CreatePipelineLayout)";
+    "VkRenderPass (InitRenderPass)";
+    "VkPipelineShaderStageCreateInfo[] (InitShaders)";
+    "VkPipelineShaderStageCreateInfo[] (InitShaders)" -> "GLSLtoSPV";
+  }
+  "VkDescriptorSetLayout[] (CreatePipelineLayout)" -> "VkDevice (CreateDevice)";
+  "VkPipelineLayout (CreatePipelineLayout)" -> "VkDevice (CreateDevice)";
+  "VkPipelineShaderStageCreateInfo[] (InitShaders)" -> "VkDevice (CreateDevice)";
+  "VkRenderPass (InitRenderPass)" -> "VkDevice (CreateDevice)";
+  "VkRenderPass (InitRenderPass)" -> "VkFormat (InitializeDeviceSurface)";
+  "VkRenderPass (InitRenderPass)" -> "VkFormat (CreateDepthBuffer)";
+  
+  // InitPipeline 
+  /* susceptible de ser separado o junto con el anterior
+       - para separarlo llamarlos cluster 4 y 5 respectivamente
+       - para mantenerlos juntos los dos han de ser cluster 4
+   */
+  subgraph cluster_4 {
+    node [style=filled];
+    color="#000000";
+    fontsize = 15;
+    label = "Init Pipeline";
+    
+    "VkPipeline (InitPipeline)" -> "VkPipelineCache (InitPipeline)";
+  }
+  "VkPipelineCache (InitPipeline)" -> "VkDevice (CreateDevice)";
+  
+  "VkPipeline (InitPipeline)" -> "VkDevice (CreateDevice)";
+  "VkPipeline (InitPipeline)" -> "VkRenderPass (InitRenderPass)";
+  "VkPipeline (InitPipeline)" -> "VkPipelineShaderStageCreateInfo[] (InitShaders)";
+  "VkPipeline (InitPipeline)" -> "VkPipelineLayout (CreatePipelineLayout)";
+  "VkPipeline (InitPipeline)" -> "VkVertexInputBindingDescription (CreateVertexBuffer)" ;
+  "VkPipeline (InitPipeline)" -> "VkVertexInputAttributeDescription[] (CreateVertexBuffer)";
+  
+  // AllocateDescriptorSet
+  subgraph cluster_7 {
+    node [style=filled];
+    color="#000000";
+    fontsize = 15;
+    label = "Descriptor Pool";
+    
+    "VkDescriptorSet[] (AllocateDescriptorSet)";
+  }
+  "VkDescriptorSet[] (AllocateDescriptorSet)" -> "VkDescriptorSetLayout[] (CreatePipelineLayout)";
+  
+  // Framebuffers
+  "VkFramebuffer[] (InitFrameBuffer)" -> "VkRenderPass (InitRenderPass)";
+  
+  // Draw Cube
+  "DRAW" -> "VkPipeline (InitPipeline)";
+  "DRAW" -> "VkRenderPass (InitRenderPass)";
+  "DRAW" -> "VkPipelineLayout (CreatePipelineLayout)";
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
