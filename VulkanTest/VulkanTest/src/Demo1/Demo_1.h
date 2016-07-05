@@ -19,7 +19,6 @@ public:
 	void Event(SDL_Event* Event){ OnEvent(Event); }
 
 
-
 	int OnExecute();
 
 	bool OnInit();

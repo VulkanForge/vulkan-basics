@@ -76,7 +76,52 @@ static const Vertex g_vbData[] = {
     {XYZ1(1, -1, -1), XYZ1(1.f, 0.f, 0.f)},
     {XYZ1(-1, -1, -1), XYZ1(0.f, 0.f, 0.f)},
 };
+// PER VERTEX COLOR
 
+static const Vertex g_vb_solid_face_colors_Data[] = {
+    { XYZ1(-1, -1, -1), XYZ1(0.f, 0.f, 0.f) },
+    { XYZ1(1, -1, -1), XYZ1(1.f, 0.f, 0.f) },
+    { XYZ1(-1, 1, -1), XYZ1(0.f, 1.f, 0.f) },
+    { XYZ1(-1, 1, -1), XYZ1(0.f, 1.f, 0.f) },
+    { XYZ1(1, -1, -1), XYZ1(1.f, 0.f, 0.f) },
+    { XYZ1(1, 1, -1), XYZ1(1.f, 1.f, 0.f) },
+
+    { XYZ1(-1, -1, 1), XYZ1(0.f, 0.f, 1.f) },
+    { XYZ1(-1, 1, 1), XYZ1(0.f, 1.f, 1.f) },
+    { XYZ1(1, -1, 1), XYZ1(1.f, 0.f, 1.f) },
+    { XYZ1(1, -1, 1), XYZ1(1.f, 0.f, 1.f) },
+    { XYZ1(-1, 1, 1), XYZ1(0.f, 1.f, 1.f) },
+    { XYZ1(1, 1, 1), XYZ1(1.f, 1.f, 1.f) },
+
+    { XYZ1(1, 1, 1), XYZ1(1.f, 1.f, 1.f) },
+    { XYZ1(1, 1, -1), XYZ1(1.f, 1.f, 0.f) },
+    { XYZ1(1, -1, 1), XYZ1(1.f, 0.f, 1.f) },
+    { XYZ1(1, -1, 1), XYZ1(1.f, 0.f, 1.f) },
+    { XYZ1(1, 1, -1), XYZ1(1.f, 1.f, 0.f) },
+    { XYZ1(1, -1, -1), XYZ1(1.f, 0.f, 0.f) },
+
+    { XYZ1(-1, 1, 1), XYZ1(0.f, 1.f, 1.f) },
+    { XYZ1(-1, -1, 1), XYZ1(0.f, 0.f, 1.f) },
+    { XYZ1(-1, 1, -1), XYZ1(0.f, 1.f, 0.f) },
+    { XYZ1(-1, 1, -1), XYZ1(0.f, 1.f, 0.f) },
+    { XYZ1(-1, -1, 1), XYZ1(0.f, 0.f, 1.f) },
+    { XYZ1(-1, -1, -1), XYZ1(0.f, 0.f, 0.f) },
+
+    { XYZ1(1, 1, 1), XYZ1(1.f, 1.f, 1.f) },
+    { XYZ1(-1, 1, 1), XYZ1(0.f, 1.f, 1.f) },
+    { XYZ1(1, 1, -1), XYZ1(1.f, 1.f, 0.f) },
+    { XYZ1(1, 1, -1), XYZ1(1.f, 1.f, 0.f) },
+    { XYZ1(-1, 1, 1), XYZ1(0.f, 1.f, 1.f) },
+    { XYZ1(-1, 1, -1), XYZ1(0.f, 1.f, 0.f) },
+
+    { XYZ1(1, -1, 1), XYZ1(1.f, 0.f, 1.f) },
+    { XYZ1(1, -1, -1), XYZ1(1.f, 0.f, 0.f) },
+    { XYZ1(-1, -1, 1), XYZ1(0.f, 0.f, 1.f) },
+    { XYZ1(-1, -1, 1), XYZ1(0.f, 0.f, 1.f) },
+    { XYZ1(1, -1, -1), XYZ1(1.f, 0.f, 0.f) },
+    { XYZ1(-1, -1, -1), XYZ1(0.f, 0.f, 0.f) },
+};
+/*/
 static const Vertex g_vb_solid_face_colors_Data[] = {
     {XYZ1(-1, -1, -1), XYZ1(1.f, 0.f, 0.f)},
     {XYZ1(1, -1, -1), XYZ1(1.f, 0.f, 0.f)},
@@ -120,6 +165,7 @@ static const Vertex g_vb_solid_face_colors_Data[] = {
     {XYZ1(1, -1, -1), XYZ1(0.f, 1.f, 1.f)},
     {XYZ1(-1, -1, -1), XYZ1(0.f, 1.f, 1.f)},
 };
+// */
 
 static const VertexUV g_vb_texture_Data[] = {
     {XYZ1(-1, -1, -1), UV(0.f, 0.f)},

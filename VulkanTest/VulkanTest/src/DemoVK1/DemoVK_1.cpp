@@ -27,11 +27,12 @@ void DemoVK_1::OnRender() {
 }
 
 void DemoVK_1::OnCleanup() {
+    /*
     VulkanCommon::FreeCommandBuffer(_vulkanInfo);
     VulkanCommon::DestroyCommandPool(_vulkanInfo);
     VulkanCommon::DestroyDevice(_vulkanInfo);
     VulkanCommon::DestroyInstance(_vulkanInfo);
-
+    */
     SDL_GL_DeleteContext(_ctxt);
     SDL_DestroyWindow(_mainwindow);
     SDL_Quit();
