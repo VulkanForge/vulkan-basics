@@ -188,6 +188,9 @@
     <ClInclude Include="src\Demo1\Demo_1.h" />
     <ClInclude Include="src\Demo2\Demo_2.h" />
     <ClInclude Include="src\DemoVK1\DemoVK_1.h" />
+    <ClInclude Include="src\VulkanForgeCore\Device.h" />
+    <ClInclude Include="src\VulkanForgeCore\Instance.h" />
+    <ClInclude Include="src\VulkanForgeCore\PhysicalDevice.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lib\glslang\glslang\GenericCodeGen\CodeGen.cpp" />
