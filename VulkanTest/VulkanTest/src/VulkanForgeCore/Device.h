@@ -2,6 +2,12 @@
 #define VULKAN_FORGE_DEVICE_H_
 
 #include <vulkan.h>
+#include "SwapChain.h"
+#include "UniformBuffer.h"
+#include "VertexBuffer.h"
+#include "DepthBuffer.h"
+#include "CommandBuffer.h"
+
 
 class PhysicalDevice;
 
@@ -21,6 +27,8 @@ public:
 
     CommandBuffer CreateCommandBuffer();
 
+    SwapChain CreateSwapchain();
+    
 };
 
 #endif

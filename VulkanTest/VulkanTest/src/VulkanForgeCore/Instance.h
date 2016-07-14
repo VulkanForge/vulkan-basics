@@ -12,24 +12,38 @@
 
 #endif
 
-
+#include <iostream>
 #include <vulkan.h>
 #include <vector>
 #include "PhysicalDevice.h"
+#include "Result.h"
+
+using namespace std;
 
 class Instance {
+private:
+
+    vector<const char*> _instanceExtensionNames;
+    vector<const char*> _instanceLayerNames;
+    
+    VkResult EnumeratePhysicalDevices();
+
+
 public:
     
     // Reference to the Vulkan Instance
-    VkInstance vkInstance;
+    VkInstance* vkInstance;
     
     // All the capable PhysicalDevices of the machine
-    std::vector<PhysicalDevice> physicalDevices;
+    vector<PhysicalDevice> physicalDevices;
 
     /**
     Creates a full vkInstance and enumerates and stores the PhysicalDevices
     **/
-    Result Init();
+    Result Init(const char* appName);
+
+
+    void EnableSurfaceExtension();
 
 };
 
